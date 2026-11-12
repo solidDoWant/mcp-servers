@@ -1,0 +1,32 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: [
+    "config:recommended",
+    ":semanticCommits",
+    ":timezone(America/Chicago)",
+  ],
+  // Hold new releases briefly (supply-chain safety, chained hotfixes).
+  minimumReleaseAge: "3 days",
+  minimumReleaseAgeBehaviour: "timestamp-optional",
+  pinDigests: true,
+  ignorePaths: [".claude/**", "**/docs/**"],
+  nix: { enabled: true, lockFileMaintenance: { enabled: true } },
+  lockFileMaintenance: { dependencyDashboardApproval: true },
+  postUpdateOptions: ["gomodTidy"],
+  customManagers: [
+    {
+      description: "ko's base image",
+      customType: "regex",
+      managerFilePatterns: ["/^\\.ko\\.yaml$/"],
+      matchStrings: ["defaultBaseImage:\\s*(?<depName>[a-z0-9.-]+\\.[a-z]+/[a-z0-9._/-]+):(?<currentValue>[A-Za-z0-9._-]+)@(?<currentDigest>sha256:[a-f0-9]{64})"],
+      datasourceTemplate: "docker",
+    },
+  ],
+  packageRules: [
+    {
+      description: "The owner merges Renovate's PRs",
+      matchPackageNames: ["*"],
+      automerge: false,
+    },
+  ],
+}

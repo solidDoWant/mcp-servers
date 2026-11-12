@@ -1,0 +1,15 @@
+{"data":{"model":{
+ "id":"770347","name":"Rpi 5 case dinrail mount","slug":"rpi-5-case-dinrail-mount","summary":"Din rail mount for the Rpi 5 case from Pihut.","ratingAvg":"3.0000000000","ratingCount":1,"likesCount":7,"downloadCount":55,"makesCount":2,"datePublished":"2024-03-30T12:45:43.566887+00:00","premium":false,"price":null,
+ "user":{"publicUsername":"Jercorin","handle":"Jercorin_515040"},"image":{"filePath":"media/prints/770347/images/5993155/case1.jpg"},
+ "description":"<p>Easy to print Dinrail mount for the Rpi 5 case from <a href=\"https://thepihut.com\">Pihut</a>.&nbsp;</p><p>For use with M2 screws and nuts.</p>",
+ "nsfw":false,
+ "tags":[{"name":"rpi"},{"name":"dinrail"}],
+ "license":{"name":"Creative Commons — Attribution","abbreviation":"CC-BY"},
+ "category":{"name":"Mechanical Parts","path":[{"name":"Hobby & Makers"},{"name":"Mechanical Parts"}]},
+ "images":[{"filePath":"media/prints/770347/images/5993155/case1.jpg"},{"filePath":"media/prints/770347/images/5993156/case2.jpg"}],
+ "stls":[{"id":"3269904","name":"RpiDinRail_M2.stl","folder":"","note":"","fileSize":175584},{"id":"3496939","name":"RpiDinRail.step","folder":"","note":"","fileSize":222099}],
+ "gcodes":[{"id":"411","name":"RpiDinRail_0.2mm_PLA_MK4.bgcode","folder":"","note":"","fileSize":1048576,"printer":{"name":"Original Prusa MK4"},"material":{"name":"PLA"},"printDuration":3720,"layerHeight":0.2,"nozzleDiameter":0.4,"weight":21.5}],
+ "slas":[],
+ "otherFiles":[],
+ "downloadPacks":[{"id":"3621974","fileSize":138649,"fileType":"MODEL_FILES"},{"id":"3621975","fileSize":138649,"fileType":"OTHER_FILES"}]
+}}}

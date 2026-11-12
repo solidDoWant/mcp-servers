@@ -1,0 +1,8 @@
+/bin/
+/build/
+/result
+/result-*
+.direnv/
+/.claude/worktrees/
+/.claude/tasks/
+__pycache__/

@@ -1,0 +1,417 @@
+[
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": true,
+      "title": "Get Printables download links"
+    },
+    "description": "Get direct download URLs for some of a Printables model's files or zip packs. The URLs work for 24 hours without signing in; download them with curl or wget rather than reading the files into the conversation. The file host rejects some HTTP libraries' default User-Agent (Go, python-requests), so set your own if you use one. Store (paid) models refuse.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "file_ids": {
+          "description": "IDs from get_model's files",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "model": {
+          "description": "the model's ID or its printables.com URL",
+          "type": "string"
+        },
+        "pack_ids": {
+          "description": "IDs from get_model's packs",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      },
+      "required": [
+        "model"
+      ],
+      "type": "object"
+    },
+    "name": "get_download_links",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "links": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "expires_at": {
+                "description": "when the URL stops working (RFC 3339)",
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "description": "a file name to save it as",
+                "type": "string"
+              },
+              "size_bytes": {
+                "type": "integer"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "size_bytes",
+              "url",
+              "expires_at"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      },
+      "required": [
+        "links"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": true,
+      "title": "Get a Printables model"
+    },
+    "description": "Get one Printables model's details: description, license, tags, category, images, and its files and zip packs with the IDs get_download_links takes.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "description": "the model's ID (e.g. 770347) or its printables.com URL",
+          "type": "string"
+        }
+      },
+      "required": [
+        "model"
+      ],
+      "type": "object"
+    },
+    "name": "get_model",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "description": {
+          "description": "the author's description, as Markdown",
+          "type": "string"
+        },
+        "downloads": {
+          "type": "integer"
+        },
+        "files": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "folder": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "description": "model (STL, 3MF, STEP and similar), gcode, sla or other",
+                "type": "string"
+              },
+              "layer_height_mm": {
+                "type": [
+                  "null",
+                  "number"
+                ]
+              },
+              "material": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              },
+              "nozzle_mm": {
+                "type": [
+                  "null",
+                  "number"
+                ]
+              },
+              "print_minutes": {
+                "type": [
+                  "null",
+                  "number"
+                ]
+              },
+              "printer": {
+                "type": "string"
+              },
+              "size_bytes": {
+                "type": "integer"
+              },
+              "weight_grams": {
+                "type": [
+                  "null",
+                  "number"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "kind",
+              "size_bytes"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "image_urls": {
+          "description": "up to 5 pictures of the model",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "license": {
+          "type": "string"
+        },
+        "likes": {
+          "type": "integer"
+        },
+        "makes": {
+          "description": "how many people posted a print of it",
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "nsfw": {
+          "type": "boolean"
+        },
+        "packs": {
+          "description": "zips of all of one kind of the model's files",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "contents": {
+                "description": "which files the zip holds, e.g. model_files",
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              },
+              "size_bytes": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id",
+              "contents",
+              "size_bytes"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "paid": {
+          "description": "a Store model, which can't be downloaded here",
+          "type": "boolean"
+        },
+        "published": {
+          "type": "string"
+        },
+        "rating": {
+          "description": "average rating out of 5; 0 when unrated",
+          "type": "number"
+        },
+        "ratings": {
+          "type": "integer"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "thumbnail_url": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "url",
+        "rating",
+        "ratings",
+        "likes",
+        "downloads",
+        "makes",
+        "description",
+        "files"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": true,
+      "title": "Search Printables"
+    },
+    "description": "Search printables.com for 3D-printable models. Returns one page of results with IDs to pass to get_model.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "limit": {
+          "description": "results per page, 1 to 50 (default 10)",
+          "type": "integer"
+        },
+        "offset": {
+          "description": "results to skip, for the next page",
+          "type": "integer"
+        },
+        "query": {
+          "description": "what to search for, e.g. raspberry pi 5 case",
+          "type": "string"
+        },
+        "sort": {
+          "description": "result order: best_match (default), popular, latest, rating or makes_count",
+          "type": "string"
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "name": "search_models",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "models": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "author": {
+                "type": "string"
+              },
+              "downloads": {
+                "type": "integer"
+              },
+              "id": {
+                "type": "string"
+              },
+              "likes": {
+                "type": "integer"
+              },
+              "makes": {
+                "description": "how many people posted a print of it",
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "paid": {
+                "description": "a Store model, which can't be downloaded here",
+                "type": "boolean"
+              },
+              "published": {
+                "type": "string"
+              },
+              "rating": {
+                "description": "average rating out of 5; 0 when unrated",
+                "type": "number"
+              },
+              "ratings": {
+                "type": "integer"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "thumbnail_url": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "url",
+              "rating",
+              "ratings",
+              "likes",
+              "downloads",
+              "makes"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "offset": {
+          "type": "integer"
+        },
+        "total": {
+          "description": "how many models match in all",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "offset",
+        "models"
+      ],
+      "type": "object"
+    }
+  }
+]

@@ -1,0 +1,59 @@
+name: release
+
+# A tag <server>/v<semver>, e.g. printables/v0.1.0, publishes
+# ghcr.io/soliddowant/mcp-<server>:<semver> for linux/amd64 and arm64.
+on:
+  push:
+    tags:
+      - "*/v[0-9]+.[0-9]+.[0-9]+"
+      - "*/v[0-9]+.[0-9]+.[0-9]+-*"
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/nix-dev-shell
+      - name: Parse the tag
+        id: tag
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          echo "server=${TAG%%/v*}" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG##*/v}" >> "$GITHUB_OUTPUT"
+      - name: Test
+        run: nix develop -c make test
+      - name: Sign in to ghcr.io
+        env:
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: printf '%s' "$GHCR_TOKEN" | nix develop -c ko login ghcr.io --username "$GHCR_USER" --password-stdin
+      - name: Push the image
+        env:
+          SERVER: ${{ steps.tag.outputs.server }}
+          VERSION: ${{ steps.tag.outputs.version }}
+        run: nix develop -c ./scripts/image.sh "$SERVER" "$VERSION" true | tee build-ref.txt
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          SERVER: ${{ steps.tag.outputs.server }}
+          VERSION: ${{ steps.tag.outputs.version }}
+        run: |
+          ref="$(tail -n1 build-ref.txt)"
+          prerelease=()
+          case "$VERSION" in *-*) prerelease=(--prerelease) ;; esac
+          gh release create "$TAG" "${prerelease[@]}" --verify-tag --latest=false \
+            --title "$SERVER $VERSION" \
+            --notes "Image: \`$ref\`
+
+          See [servers/$SERVER/CHANGELOG.md](https://github.com/${{ github.repository }}/blob/$TAG/servers/$SERVER/CHANGELOG.md) for what changed."
