@@ -46,7 +46,7 @@ Mouser takes its key as a URL parameter, and Go's HTTP errors quote the URL. The
 | `MOUSER_API_KEY_FILE` | none | File holding a Mouser Search API key. |
 | `JLCSEARCH_DISABLED` | `false` | Turn jlcsearch off. |
 | `DIGIKEY_LOCALE_SITE`, `DIGIKEY_LOCALE_CURRENCY` | `US`, `USD` | DigiKey's prices and stock for this site and currency. |
-| `PARTS_CACHE_TTL`, `PARTS_CACHE_SIZE` | `1h`, `5000` | How long answers are reused, and how many are kept. |
+| `PARTS_CACHE_TTL`, `PARTS_CACHE_SIZE` | `1h`, `1000` | How long answers are reused, and how many are kept. A search keeps up to about 50 KB, so 1000 entries stay under about 50 MB. |
 | `DIGIKEY_DAILY_LIMIT`, `DIGIKEY_PER_MINUTE`, `MOUSER_DAILY_LIMIT`, `MOUSER_PER_MINUTE` | see above | Budgets. A daily limit of `0` means none. |
 | `DIGIKEY_API_URL`, `MOUSER_API_URL`, `JLCSEARCH_URL` | the real services | Upstream addresses. Tests point them at a fake. |
 

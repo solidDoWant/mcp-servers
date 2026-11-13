@@ -68,7 +68,7 @@ func New(cfg Config) *Service {
 	}
 
 	if cfg.CacheSize <= 0 {
-		cfg.CacheSize = 5000
+		cfg.CacheSize = 1000
 	}
 
 	if cfg.CacheTTL <= 0 {
