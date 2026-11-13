@@ -87,16 +87,18 @@ func config() (electroniccomponents.Config, error) {
 	cfg.CachePrefix = os.Getenv("CACHE_KEY_PREFIX")
 
 	// A shared Redis-protocol server keeps answers and budgets across
-	// restarts and replicas. Its URL carries a password, so it comes from a
-	// file like the API keys.
-	cacheURL, err := secretFile("CACHE_URL_FILE")
-	if err != nil {
-		return cfg, err
-	}
+	// restarts and replicas. CACHE_URL is its connection string; with an ACL
+	// user's password in it, set it from a Secret. The CACHE_TLS_* files add
+	// mutual TLS (with a rediss:// URL).
+	if cacheURL := strings.TrimSpace(os.Getenv("CACHE_URL")); cacheURL != "" {
+		files := cache.TLSFiles{
+			CertFile: os.Getenv("CACHE_TLS_CERT_FILE"),
+			KeyFile:  os.Getenv("CACHE_TLS_KEY_FILE"),
+			CAFile:   os.Getenv("CACHE_TLS_CA_FILE"),
+		}
 
-	if cacheURL != "" {
-		if cfg.CacheStore, err = cache.NewRedisStore(cacheURL); err != nil {
-			return cfg, fmt.Errorf("CACHE_URL_FILE: %w", err)
+		if cfg.CacheStore, err = cache.NewRedisStore(cacheURL, files); err != nil {
+			return cfg, fmt.Errorf("CACHE_URL: %w", err)
 		}
 	}
 

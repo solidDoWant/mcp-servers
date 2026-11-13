@@ -54,7 +54,7 @@ func TestServerIsolatesServicesWithACLUsers(t *testing.T) {
 		return u.String()
 	}
 
-	store, err := NewRedisStore(userURL("svc-a"))
+	store, err := NewRedisStore(userURL("svc-a"), TLSFiles{})
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = store.Close() })
 

@@ -30,14 +30,12 @@ func TestConfigReadsKeysFromFilesAndSkipsMissingOnes(t *testing.T) {
 	assert.Equal(t, 30*time.Minute, cfg.CacheTTL)
 	assert.Zero(t, cfg.MouserBudget.Daily, "0 means no daily limit")
 	assert.InDelta(t, 25, cfg.MouserBudget.PerMinute, 0, "unset values keep their defaults")
-	assert.Nil(t, cfg.CacheStore, "no CACHE_URL_FILE keeps the cache in memory")
+	assert.Nil(t, cfg.CacheStore, "no CACHE_URL keeps the cache in memory")
 	assert.Equal(t, 24*time.Hour, cfg.CacheStaleFor)
 }
 
-func TestConfigUsesARedisStoreFromTheCacheURLFile(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "url")
-	require.NoError(t, os.WriteFile(path, []byte("redis://svc:pw@cache.ai.svc:6379/0\n"), 0o600))
-	t.Setenv("CACHE_URL_FILE", path)
+func TestConfigUsesARedisStoreFromCacheURL(t *testing.T) {
+	t.Setenv("CACHE_URL", "redis://svc:pw@cache.ai.svc:6379/0")
 	t.Setenv("CACHE_KEY_PREFIX", "ec")
 
 	cfg, err := config()
@@ -49,14 +47,23 @@ func TestConfigUsesARedisStoreFromTheCacheURLFile(t *testing.T) {
 }
 
 func TestConfigRefusesABadCacheURLWithoutQuotingIt(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "url")
-	require.NoError(t, os.WriteFile(path, []byte("http://svc:hunter2@cache"), 0o600))
-	t.Setenv("CACHE_URL_FILE", path)
+	t.Setenv("CACHE_URL", "http://svc:hunter2@cache")
 
 	_, err := config()
 
-	require.ErrorContains(t, err, "CACHE_URL_FILE")
+	require.ErrorContains(t, err, "CACHE_URL")
 	assert.NotContains(t, err.Error(), "hunter2")
+}
+
+func TestConfigRefusesTLSFilesThatCantBeLoaded(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("CACHE_URL", "rediss://svc:pw@cache.ai.svc:6379")
+	t.Setenv("CACHE_TLS_CERT_FILE", filepath.Join(dir, "tls.crt"))
+	t.Setenv("CACHE_TLS_KEY_FILE", filepath.Join(dir, "tls.key"))
+
+	_, err := config()
+
+	require.ErrorContains(t, err, "load the cache client certificate")
 }
 
 func TestConfigRejectsMalformedSettings(t *testing.T) {

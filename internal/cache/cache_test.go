@@ -65,7 +65,7 @@ func backends() []backend {
 			c := &clock{t: start, mrs: m}
 
 			return func() Store {
-				s, err := NewRedisStore("redis://" + m.Addr())
+				s, err := NewRedisStore("redis://"+m.Addr(), TLSFiles{})
 				require.NoError(t, err)
 				t.Cleanup(func() { _ = s.Close() })
 
@@ -323,7 +323,7 @@ func TestABudgetCountsInProcessWhileTheStoreIsDown(t *testing.T) {
 }
 
 func TestARedisURLThatIsInvalidIsRefusedWithoutQuotingIt(t *testing.T) {
-	_, err := NewRedisStore("http://user:hunter2@example")
+	_, err := NewRedisStore("http://user:hunter2@example", TLSFiles{})
 
 	require.Error(t, err)
 	assert.NotContains(t, err.Error(), "hunter2")
