@@ -15,9 +15,11 @@ import (
 )
 
 // Instructions is sent to clients with the tool list.
-const Instructions = `Upload flat parts to SendCutSend (laser, waterjet and router cutting of sheet stock), price them, and build saved carts the account owner checks out in their browser.
-Typical flow: create_part (DXF text inline, or a file uploaded with get_upload_url) → quote_part without a material to compare materials → quote_part with a material_sku for delivery dates → create_saved_cart → give the user its checkout_url.
-list_materials gives SKUs, thicknesses and the services each material offers. Prices here are for cutting only; services such as bending, tapping and finishing are not supported by this server and must be added on the website.
+const Instructions = `Upload flat parts to SendCutSend (laser, waterjet and router cutting of sheet stock), price them with bending, tapping and finishing, and build saved carts the account owner checks out in their browser.
+Typical flow: create_part (DXF text inline, or a file uploaded with get_upload_url) → quote_part without a material to compare cutting prices → get_part_features with the chosen material_sku for bend line and hole IDs → quote_part with material_sku and services → create_saved_cart with the same services → give the user its checkout_url.
+Services: bends (every bend line, with angle and direction), taps (hole IDs and a tap that fits), one finish (powder, anodizing or plating value from list_finishes), deburring, tumbling. A part's saved_services from get_part_features repeats its last order or the bends found in a 3D file.
+The server checks services against SendCutSend's published rules (hole size for the tap, edge and bend clearance, bend angles and lengths, finish options, hanging hole), because SendCutSend's own API doesn't. Its website also checks flange lengths and tool clearance, which this server can't: tell the user to look over bent or tapped parts in the cart before paying.
+Countersinking, hardware insertion, dimpling, engraving and welding aren't supported here; add them on the website.
 Nothing here places an order or pays: the user reviews and checks out the saved cart on sendcutsend.com.`
 
 const (
@@ -46,6 +48,8 @@ func Tools(c *Client) func(*mcp.Server) {
 		mcp.AddTool(s, &mcp.Tool{Name: "get_part", Description: getPartDescription, Annotations: readOnly("Get a SendCutSend part")}, c.getPartTool)
 		mcp.AddTool(s, &mcp.Tool{Name: "list_parts", Description: listPartsDescription, Annotations: readOnly("List SendCutSend parts")}, c.listPartsTool)
 		mcp.AddTool(s, &mcp.Tool{Name: "delete_part", Description: deletePartDescription, Annotations: write("Delete a SendCutSend part", true)}, c.deletePartTool)
+		mcp.AddTool(s, &mcp.Tool{Name: "get_part_features", Description: featuresDescription, Annotations: readOnly("Get a SendCutSend part's bends and holes")}, c.featuresTool)
+		mcp.AddTool(s, &mcp.Tool{Name: "list_finishes", Description: finishesDescription, Annotations: readOnly("List SendCutSend finishes")}, c.finishesTool)
 		mcp.AddTool(s, &mcp.Tool{Name: "quote_part", Description: quoteDescription, Annotations: readOnly("Price a SendCutSend part")}, c.quoteTool)
 		mcp.AddTool(s, &mcp.Tool{Name: "create_saved_cart", Description: createCartDescription, Annotations: write("Create a SendCutSend saved cart", false)}, c.createCartTool)
 		mcp.AddTool(s, &mcp.Tool{Name: "list_saved_carts", Description: listCartsDescription, Annotations: readOnly("List SendCutSend saved carts")}, c.listCartsTool)
@@ -61,8 +65,8 @@ const (
 	getPartDescription    = "Get one part's details and processing result: size, units, whether it can be priced and the problems found."
 	listPartsDescription  = "List the parts on the SendCutSend account, newest first."
 	deletePartDescription = "Delete a part from the SendCutSend account. Saved carts that already hold it are not changed."
-	quoteDescription      = "Price a part for a quantity. Without material_sku, price it in every material that can cut it and list the cheapest first (optionally only one category). With material_sku, price that material only, with price breaks and estimated ship and delivery dates. Prices are in USD for cutting only, before shipping and tax."
-	createCartDescription = "Create a saved cart on the SendCutSend account holding cut-only parts, and return a checkout_url. Give the user the checkout_url: opening it while signed in loads the parts into their cart to review and pay. Nothing is ordered or paid here. The account's own cart must be empty, because SendCutSend builds a saved cart from everything in it; this tool adds its parts, saves, and takes them out again. A saved cart can't be changed afterwards; create another and delete the old one instead."
+	quoteDescription      = "Price a part for a quantity. Without material_sku, price cutting in every material that can cut it, cheapest first (optionally only one category). With material_sku, price that material only, with price breaks and estimated ship and delivery dates, and with services (bends, taps, finish) if given: each service's cost and a grand total. Services are checked against the part's geometry and the material's rules first. Prices are in USD, before shipping and tax."
+	createCartDescription = "Create a saved cart on the SendCutSend account holding parts, each with optional services (checked as in quote_part), and return a checkout_url. Give the user the checkout_url: opening it while signed in loads the parts into their cart to review and pay. Nothing is ordered or paid here. The account's own cart must be empty, because SendCutSend builds a saved cart from everything in it; this tool adds its parts, saves, and takes them out again. A saved cart can't be changed afterwards; create another and delete the old one instead."
 	listCartsDescription  = "List the account's saved carts, newest first, with their checkout URLs."
 	getCartDescription    = "Get one saved cart's parts, materials and quantities. Saved carts don't keep prices; use quote_part for current prices."
 	deleteCartDescription = "Delete a saved cart from the SendCutSend account."
@@ -532,11 +536,12 @@ func (c *Client) deletePartTool(ctx context.Context, _ *mcp.CallToolRequest, in 
 
 // QuoteInput is quote_part's input.
 type QuoteInput struct {
-	PartID      int64  `json:"part_id" jsonschema:"the part's ID"`
-	Quantity    int    `json:"quantity" jsonschema:"how many to make, 1 to 10000"`
-	MaterialSKU string `json:"material_sku,omitempty" jsonschema:"price only this material (a SKU from list_materials), with delivery dates"`
-	Category    string `json:"category,omitempty" jsonschema:"without material_sku: only materials in this category"`
-	Limit       int    `json:"limit,omitempty" jsonschema:"without material_sku: at most this many materials, 1 to 100 (default 15)"`
+	PartID      int64          `json:"part_id" jsonschema:"the part's ID"`
+	Quantity    int            `json:"quantity" jsonschema:"how many to make, 1 to 10000"`
+	MaterialSKU string         `json:"material_sku,omitempty" jsonschema:"price only this material (a SKU from list_materials), with delivery dates"`
+	Category    string         `json:"category,omitempty" jsonschema:"without material_sku: only materials in this category"`
+	Limit       int            `json:"limit,omitempty" jsonschema:"without material_sku: at most this many materials, 1 to 100 (default 15)"`
+	Services    *ServicesInput `json:"services,omitempty" jsonschema:"bending, tapping and finishing to price too; needs material_sku"`
 }
 
 // QuoteOutput is quote_part's output.
@@ -564,6 +569,32 @@ type QuoteResult struct {
 	PriceBreaks    []PriceBreakR `json:"price_breaks,omitempty" jsonschema:"unit price from each quantity up"`
 	EstShipDate    string        `json:"est_ship_date,omitempty"`
 	InHandDate     string        `json:"in_hand_date,omitempty" jsonschema:"estimated delivery with standard shipping"`
+	Services       []ServiceCost `json:"services,omitempty" jsonschema:"what each service adds for the whole quantity"`
+	GrandTotal     *float64      `json:"grand_total_usd,omitempty" jsonschema:"cutting plus services for the whole quantity, before shipping and tax"`
+}
+
+// ServiceCost is what one service adds to a line.
+type ServiceCost struct {
+	Service  string  `json:"service"`
+	Count    int     `json:"count,omitempty" jsonschema:"bends or tapped holes per part"`
+	TotalUSD float64 `json:"total_usd" jsonschema:"for the whole quantity, minimum charges included"`
+}
+
+func serviceCosts(costs OperationCosts) ([]ServiceCost, float64) {
+	var (
+		out []ServiceCost
+		sum float64
+	)
+
+	for name, c := range costs {
+		t := money(c.Total)
+		out = append(out, ServiceCost{Service: name, Count: c.OperationCount, TotalUSD: t})
+		sum += t
+	}
+
+	sort.Slice(out, func(i, j int) bool { return out[i].Service < out[j].Service })
+
+	return out, sum
 }
 
 // PriceBreakR is a quantity price break.
@@ -595,12 +626,18 @@ func (c *Client) quoteTool(ctx context.Context, _ *mcp.CallToolRequest, in Quote
 
 	sku := strings.ToUpper(strings.TrimSpace(in.MaterialSKU))
 
+	services := in.Services != nil && !in.Services.empty()
+	if services && sku == "" {
+		return nil, QuoteOutput{}, errNeedsMaterial
+	}
+
 	s, err := c.newSession(ctx)
 	if err != nil {
 		return nil, QuoteOutput{}, err
 	}
 
-	if err := s.requireQuotable(ctx, in.PartID); err != nil {
+	d, err := s.requireQuotable(ctx, in.PartID)
+	if err != nil {
 		return nil, QuoteOutput{}, err
 	}
 
@@ -620,7 +657,16 @@ func (c *Client) quoteTool(ctx context.Context, _ *mcp.CallToolRequest, in Quote
 		}
 	}
 
-	quotes, dates, err := s.quotes(ctx, in.PartID, in.Quantity, sku)
+	var plan *servicePlan
+
+	if services {
+		plan, err = s.planServices(ctx, d, bySKU[sku], *in.Services)
+		if err != nil {
+			return nil, QuoteOutput{}, err
+		}
+	}
+
+	quotes, dates, err := s.quotes(ctx, in.PartID, in.Quantity, sku, plan.quoteFields())
 	if err != nil {
 		return nil, QuoteOutput{}, err
 	}
@@ -641,6 +687,12 @@ func (c *Client) quoteTool(ctx context.Context, _ *mcp.CallToolRequest, in Quote
 
 		if len(q.Errors) == 0 {
 			out.Quotable = 1
+		}
+
+		if services {
+			costs, sum := serviceCosts(quotes[0].OperationCosts)
+			total := money(Decimal(q.TotalPrice + sum))
+			q.Services, q.GrandTotal = costs, &total
 		}
 
 		out.Quotes = append(out.Quotes, q)
@@ -694,27 +746,39 @@ func (c *Client) quoteTool(ctx context.Context, _ *mcp.CallToolRequest, in Quote
 
 // requireQuotable fails with a clear message when a part can't be priced
 // yet, instead of letting every material report an error.
-func (s *session) requireQuotable(ctx context.Context, id int64) error {
+func (s *session) requireQuotable(ctx context.Context, id int64) (*Drawing, error) {
 	d, err := s.drawing(ctx, id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	p := toPart(d)
 
 	switch {
 	case !p.Processed:
-		return fmt.Errorf("part %d is still processing (state %s); try again shortly", id, d.State)
+		return nil, fmt.Errorf("part %d is still processing (state %s); try again shortly", id, d.State)
 	case !p.Quotable:
 		var codes []string
 		for _, e := range p.Errors {
 			codes = append(codes, strings.TrimSpace(e.Code+": "+e.Message))
 		}
 
-		return fmt.Errorf("part %d can't be priced: %s", id, strings.Join(codes, "; "))
+		return nil, fmt.Errorf("part %d can't be priced: %s", id, strings.Join(codes, "; "))
 	}
 
-	return nil
+	return d, nil
+}
+
+// planServices checks a services request for a part in a material.
+func (s *session) planServices(ctx context.Context, d *Drawing, m Material, in ServicesInput) (*servicePlan, error) {
+	needFinish := in.Powder != "" || in.Anodizing != "" || in.Plating != ""
+
+	pc, err := s.partContext(ctx, d, m, len(in.Taps) > 0, needFinish)
+	if err != nil {
+		return nil, err
+	}
+
+	return pc.plan(in)
 }
 
 func toQuote(q Quote, bySKU map[string]Material) QuoteResult {
@@ -744,9 +808,10 @@ func toQuote(q Quote, bySKU map[string]Material) QuoteResult {
 
 // CartItemInput is one line of a new saved cart.
 type CartItemInput struct {
-	PartID      int64  `json:"part_id"`
-	MaterialSKU string `json:"material_sku" jsonschema:"a SKU from list_materials or quote_part"`
-	Quantity    int    `json:"quantity" jsonschema:"1 to 10000"`
+	PartID      int64          `json:"part_id"`
+	MaterialSKU string         `json:"material_sku" jsonschema:"a SKU from list_materials or quote_part"`
+	Quantity    int            `json:"quantity" jsonschema:"1 to 10000"`
+	Services    *ServicesInput `json:"services,omitempty" jsonschema:"bending, tapping and finishing; omit for cut only"`
 }
 
 // CreateCartInput is create_saved_cart's input.
@@ -772,12 +837,13 @@ type CartOutput struct {
 
 // CartItemResult is one line of a saved cart.
 type CartItemResult struct {
-	PartID      int64    `json:"part_id"`
-	PartName    string   `json:"part_name,omitempty"`
-	MaterialSKU string   `json:"material_sku"`
-	Quantity    int      `json:"quantity"`
-	UnitPrice   *float64 `json:"unit_price_usd,omitempty"`
-	TotalPrice  *float64 `json:"total_price_usd,omitempty"`
+	PartID      int64         `json:"part_id"`
+	PartName    string        `json:"part_name,omitempty"`
+	MaterialSKU string        `json:"material_sku"`
+	Quantity    int           `json:"quantity"`
+	UnitPrice   *float64      `json:"unit_price_usd,omitempty" jsonschema:"cutting only, per part"`
+	TotalPrice  *float64      `json:"total_price_usd,omitempty" jsonschema:"the line's total, services included"`
+	Services    []ServiceCost `json:"services,omitempty"`
 }
 
 func (c *Client) checkoutURL(acceptPath string) string {
@@ -834,6 +900,7 @@ func (c *Client) createCartTool(ctx context.Context, _ *mcp.CallToolRequest, in 
 	}
 
 	materialIDs := make([]int64, len(in.Items))
+	plans := make([]*servicePlan, len(in.Items))
 
 	for i, it := range in.Items {
 		m, ok := bySKU[strings.ToUpper(strings.TrimSpace(it.MaterialSKU))]
@@ -847,8 +914,15 @@ func (c *Client) createCartTool(ctx context.Context, _ *mcp.CallToolRequest, in 
 
 		materialIDs[i] = m.ID
 
-		if err := s.requireQuotable(ctx, it.PartID); err != nil {
+		d, err := s.requireQuotable(ctx, it.PartID)
+		if err != nil {
 			return nil, CartOutput{}, fmt.Errorf("items[%d]: %w", i, err)
+		}
+
+		if it.Services != nil && !it.Services.empty() {
+			if plans[i], err = s.planServices(ctx, d, m, *it.Services); err != nil {
+				return nil, CartOutput{}, fmt.Errorf("items[%d]: %w", i, err)
+			}
 		}
 	}
 
@@ -866,7 +940,7 @@ func (c *Client) createCartTool(ctx context.Context, _ *mcp.CallToolRequest, in 
 
 	var added []int64
 
-	out, err := c.fillAndSave(ctx, s, title, in.Items, materialIDs, &added)
+	out, err := c.fillAndSave(ctx, s, title, in.Items, materialIDs, plans, &added)
 
 	// Saving copies the cart, so take this call's items out again either way.
 	// Only ours: the user may be using the cart in a browser meanwhile.
@@ -881,7 +955,7 @@ func (c *Client) createCartTool(ctx context.Context, _ *mcp.CallToolRequest, in 
 	return nil, out, nil
 }
 
-func (c *Client) fillAndSave(ctx context.Context, s *session, title string, items []CartItemInput, materialIDs []int64, added *[]int64) (CartOutput, error) {
+func (c *Client) fillAndSave(ctx context.Context, s *session, title string, items []CartItemInput, materialIDs []int64, plans []*servicePlan, added *[]int64) (CartOutput, error) {
 	out := CartOutput{Title: title}
 
 	var (
@@ -890,7 +964,7 @@ func (c *Client) fillAndSave(ctx context.Context, s *session, title string, item
 	)
 
 	for i, it := range items {
-		item, t, err := s.addToCart(ctx, it.PartID, materialIDs[i], it.Quantity)
+		item, t, err := s.addToCart(ctx, it.PartID, materialIDs[i], it.Quantity, plans[i].cartFields())
 		if err != nil {
 			return CartOutput{}, fmt.Errorf("items[%d]: %w", i, err)
 		}
@@ -910,9 +984,10 @@ func (c *Client) fillAndSave(ctx context.Context, s *session, title string, item
 		}
 
 		unit, total := money(item.UnitCost), money(item.TotalCost)
+		costs, _ := serviceCosts(item.OperationCosts)
 		out.Items = append(out.Items, CartItemResult{
 			PartID: it.PartID, PartName: itemName(item), MaterialSKU: item.Material.SKU,
-			Quantity: item.Quantity, UnitPrice: &unit, TotalPrice: &total,
+			Quantity: item.Quantity, UnitPrice: &unit, TotalPrice: &total, Services: costs,
 		})
 	}
 

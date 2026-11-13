@@ -160,7 +160,7 @@
       "readOnlyHint": false,
       "title": "Create a SendCutSend saved cart"
     },
-    "description": "Create a saved cart on the SendCutSend account holding cut-only parts, and return a checkout_url. Give the user the checkout_url: opening it while signed in loads the parts into their cart to review and pay. Nothing is ordered or paid here. The account's own cart must be empty, because SendCutSend builds a saved cart from everything in it; this tool adds its parts, saves, and takes them out again. A saved cart can't be changed afterwards; create another and delete the old one instead.",
+    "description": "Create a saved cart on the SendCutSend account holding parts, each with optional services (checked as in quote_part), and return a checkout_url. Give the user the checkout_url: opening it while signed in loads the parts into their cart to review and pay. Nothing is ordered or paid here. The account's own cart must be empty, because SendCutSend builds a saved cart from everything in it; this tool adds its parts, saves, and takes them out again. A saved cart can't be changed afterwards; create another and delete the old one instead.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
@@ -179,6 +179,97 @@
               "quantity": {
                 "description": "1 to 10000",
                 "type": "integer"
+              },
+              "services": {
+                "additionalProperties": false,
+                "description": "bending, tapping and finishing; omit for cut only",
+                "properties": {
+                  "anodizing": {
+                    "description": "anodizing value from list_finishes (aluminium only)",
+                    "type": "string"
+                  },
+                  "bends": {
+                    "description": "how to bend each bend line; when bending, every bend line from get_part_features must be listed",
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "angle": {
+                          "description": "bend angle in degrees, e.g. 90",
+                          "type": "number"
+                        },
+                        "direction": {
+                          "description": "up or down, seen from the drawing's front",
+                          "type": "string"
+                        },
+                        "id": {
+                          "description": "bend line ID from get_part_features",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "angle",
+                        "direction"
+                      ],
+                      "type": "object"
+                    },
+                    "type": [
+                      "null",
+                      "array"
+                    ]
+                  },
+                  "deburring": {
+                    "description": "deburr the part (SendCutSend adds it with powder coating)",
+                    "type": "boolean"
+                  },
+                  "plating": {
+                    "description": "plating value from list_finishes",
+                    "type": "string"
+                  },
+                  "powder": {
+                    "description": "powder coat colour value from list_finishes, e.g. matte_black",
+                    "type": "string"
+                  },
+                  "taps": {
+                    "description": "taps for holes, by hole ID from get_part_features",
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "hole_ids": {
+                          "description": "hole IDs from get_part_features",
+                          "items": {
+                            "type": "string"
+                          },
+                          "type": [
+                            "null",
+                            "array"
+                          ]
+                        },
+                        "tap": {
+                          "description": "tap size, e.g. M4 x 0.7 or 10-32",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "hole_ids",
+                        "tap"
+                      ],
+                      "type": "object"
+                    },
+                    "type": [
+                      "null",
+                      "array"
+                    ]
+                  },
+                  "tumbling": {
+                    "description": "tumble the part",
+                    "type": "boolean"
+                  }
+                },
+                "type": [
+                  "null",
+                  "object"
+                ]
               }
             },
             "required": [
@@ -244,13 +335,42 @@
               "quantity": {
                 "type": "integer"
               },
+              "services": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "count": {
+                      "description": "bends or tapped holes per part",
+                      "type": "integer"
+                    },
+                    "service": {
+                      "type": "string"
+                    },
+                    "total_usd": {
+                      "description": "for the whole quantity, minimum charges included",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "service",
+                    "total_usd"
+                  ],
+                  "type": "object"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
               "total_price_usd": {
+                "description": "the line's total, services included",
                 "type": [
                   "null",
                   "number"
                 ]
               },
               "unit_price_usd": {
+                "description": "cutting only, per part",
                 "type": [
                   "null",
                   "number"
@@ -516,6 +636,262 @@
       "idempotentHint": false,
       "openWorldHint": true,
       "readOnlyHint": true,
+      "title": "Get a SendCutSend part's bends and holes"
+    },
+    "description": "List a part's bend lines and round holes, with the IDs the services input of quote_part and create_saved_cart takes. With material_sku, also give each hole the taps that fit it in that material and the material's bend angle limits. saved_services is the part's saved configuration (what it was last ordered with, or the bends SendCutSend detected in a 3D file), ready to pass as services.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "material_sku": {
+          "description": "check holes and bends against this material's rules",
+          "type": "string"
+        },
+        "part_id": {
+          "description": "the part's ID",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "part_id"
+      ],
+      "type": "object"
+    },
+    "name": "get_part_features",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "bend_limits": {
+          "additionalProperties": false,
+          "properties": {
+            "max_angle": {
+              "type": "number"
+            },
+            "max_bend_length_in": {
+              "type": "number"
+            },
+            "min_angle": {
+              "type": "number"
+            },
+            "min_flange_length_in": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "min_angle",
+            "max_angle",
+            "max_bend_length_in",
+            "min_flange_length_in"
+          ],
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        "bend_lines": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "from_x_in": {
+                "type": "number"
+              },
+              "from_y_in": {
+                "type": "number"
+              },
+              "id": {
+                "type": "string"
+              },
+              "length_in": {
+                "type": "number"
+              },
+              "to_x_in": {
+                "type": "number"
+              },
+              "to_y_in": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "id",
+              "length_in",
+              "from_x_in",
+              "from_y_in",
+              "to_x_in",
+              "to_y_in"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "holes": {
+          "description": "round holes, smallest first",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "center_x_in": {
+                "type": "number"
+              },
+              "center_y_in": {
+                "type": "number"
+              },
+              "diameter_in": {
+                "type": "number"
+              },
+              "id": {
+                "type": "string"
+              },
+              "taps_that_fit": {
+                "description": "with material_sku: taps this hole can take",
+                "items": {
+                  "type": "string"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "diameter_in",
+              "center_x_in",
+              "center_y_in"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "holes_omitted": {
+          "description": "round holes left out past the first 200",
+          "type": "integer"
+        },
+        "material_services": {
+          "description": "services the material offers",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "part_id": {
+          "type": "integer"
+        },
+        "saved_services": {
+          "additionalProperties": false,
+          "properties": {
+            "anodizing": {
+              "description": "anodizing value from list_finishes (aluminium only)",
+              "type": "string"
+            },
+            "bends": {
+              "description": "how to bend each bend line; when bending, every bend line from get_part_features must be listed",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "angle": {
+                    "description": "bend angle in degrees, e.g. 90",
+                    "type": "number"
+                  },
+                  "direction": {
+                    "description": "up or down, seen from the drawing's front",
+                    "type": "string"
+                  },
+                  "id": {
+                    "description": "bend line ID from get_part_features",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "angle",
+                  "direction"
+                ],
+                "type": "object"
+              },
+              "type": [
+                "null",
+                "array"
+              ]
+            },
+            "deburring": {
+              "description": "deburr the part (SendCutSend adds it with powder coating)",
+              "type": "boolean"
+            },
+            "plating": {
+              "description": "plating value from list_finishes",
+              "type": "string"
+            },
+            "powder": {
+              "description": "powder coat colour value from list_finishes, e.g. matte_black",
+              "type": "string"
+            },
+            "taps": {
+              "description": "taps for holes, by hole ID from get_part_features",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "hole_ids": {
+                    "description": "hole IDs from get_part_features",
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": [
+                      "null",
+                      "array"
+                    ]
+                  },
+                  "tap": {
+                    "description": "tap size, e.g. M4 x 0.7 or 10-32",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "hole_ids",
+                  "tap"
+                ],
+                "type": "object"
+              },
+              "type": [
+                "null",
+                "array"
+              ]
+            },
+            "tumbling": {
+              "description": "tumble the part",
+              "type": "boolean"
+            }
+          },
+          "type": [
+            "null",
+            "object"
+          ]
+        },
+        "units": {
+          "description": "the drawing's units; sizes below are in inches",
+          "type": "string"
+        }
+      },
+      "required": [
+        "part_id",
+        "units",
+        "bend_lines",
+        "holes"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": true,
       "title": "Get a SendCutSend saved cart"
     },
     "description": "Get one saved cart's parts, materials and quantities. Saved carts don't keep prices; use quote_part for current prices.",
@@ -572,13 +948,42 @@
               "quantity": {
                 "type": "integer"
               },
+              "services": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "count": {
+                      "description": "bends or tapped holes per part",
+                      "type": "integer"
+                    },
+                    "service": {
+                      "type": "string"
+                    },
+                    "total_usd": {
+                      "description": "for the whole quantity, minimum charges included",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "service",
+                    "total_usd"
+                  ],
+                  "type": "object"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
               "total_price_usd": {
+                "description": "the line's total, services included",
                 "type": [
                   "null",
                   "number"
                 ]
               },
               "unit_price_usd": {
+                "description": "cutting only, per part",
                 "type": [
                   "null",
                   "number"
@@ -669,6 +1074,65 @@
         "upload_url",
         "expires_in",
         "example"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": true,
+      "title": "List SendCutSend finishes"
+    },
+    "description": "List the powder coat, anodizing and plating options, with the values the services input takes. With material_sku, only the kinds that material offers.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "material_sku": {
+          "description": "only the finishes this material offers",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "list_finishes",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "finishes": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "color": {
+                "type": "string"
+              },
+              "kind": {
+                "description": "powder, anodizing or plating: the services field to put the value in",
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "value",
+              "color"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      },
+      "required": [
+        "finishes"
       ],
       "type": "object"
     }
@@ -1016,13 +1480,42 @@
                     "quantity": {
                       "type": "integer"
                     },
+                    "services": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "count": {
+                            "description": "bends or tapped holes per part",
+                            "type": "integer"
+                          },
+                          "service": {
+                            "type": "string"
+                          },
+                          "total_usd": {
+                            "description": "for the whole quantity, minimum charges included",
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "service",
+                          "total_usd"
+                        ],
+                        "type": "object"
+                      },
+                      "type": [
+                        "null",
+                        "array"
+                      ]
+                    },
                     "total_price_usd": {
+                      "description": "the line's total, services included",
                       "type": [
                         "null",
                         "number"
                       ]
                     },
                     "unit_price_usd": {
+                      "description": "cutting only, per part",
                       "type": [
                         "null",
                         "number"
@@ -1097,7 +1590,7 @@
       "readOnlyHint": true,
       "title": "Price a SendCutSend part"
     },
-    "description": "Price a part for a quantity. Without material_sku, price it in every material that can cut it and list the cheapest first (optionally only one category). With material_sku, price that material only, with price breaks and estimated ship and delivery dates. Prices are in USD for cutting only, before shipping and tax.",
+    "description": "Price a part for a quantity. Without material_sku, price cutting in every material that can cut it, cheapest first (optionally only one category). With material_sku, price that material only, with price breaks and estimated ship and delivery dates, and with services (bends, taps, finish) if given: each service's cost and a grand total. Services are checked against the part's geometry and the material's rules first. Prices are in USD, before shipping and tax.",
     "inputSchema": {
       "additionalProperties": false,
       "properties": {
@@ -1120,6 +1613,97 @@
         "quantity": {
           "description": "how many to make, 1 to 10000",
           "type": "integer"
+        },
+        "services": {
+          "additionalProperties": false,
+          "description": "bending, tapping and finishing to price too; needs material_sku",
+          "properties": {
+            "anodizing": {
+              "description": "anodizing value from list_finishes (aluminium only)",
+              "type": "string"
+            },
+            "bends": {
+              "description": "how to bend each bend line; when bending, every bend line from get_part_features must be listed",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "angle": {
+                    "description": "bend angle in degrees, e.g. 90",
+                    "type": "number"
+                  },
+                  "direction": {
+                    "description": "up or down, seen from the drawing's front",
+                    "type": "string"
+                  },
+                  "id": {
+                    "description": "bend line ID from get_part_features",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "angle",
+                  "direction"
+                ],
+                "type": "object"
+              },
+              "type": [
+                "null",
+                "array"
+              ]
+            },
+            "deburring": {
+              "description": "deburr the part (SendCutSend adds it with powder coating)",
+              "type": "boolean"
+            },
+            "plating": {
+              "description": "plating value from list_finishes",
+              "type": "string"
+            },
+            "powder": {
+              "description": "powder coat colour value from list_finishes, e.g. matte_black",
+              "type": "string"
+            },
+            "taps": {
+              "description": "taps for holes, by hole ID from get_part_features",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "hole_ids": {
+                    "description": "hole IDs from get_part_features",
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": [
+                      "null",
+                      "array"
+                    ]
+                  },
+                  "tap": {
+                    "description": "tap size, e.g. M4 x 0.7 or 10-32",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "hole_ids",
+                  "tap"
+                ],
+                "type": "object"
+              },
+              "type": [
+                "null",
+                "array"
+              ]
+            },
+            "tumbling": {
+              "description": "tumble the part",
+              "type": "boolean"
+            }
+          },
+          "type": [
+            "null",
+            "object"
+          ]
         }
       },
       "required": [
@@ -1179,6 +1763,13 @@
               "est_ship_date": {
                 "type": "string"
               },
+              "grand_total_usd": {
+                "description": "cutting plus services for the whole quantity, before shipping and tax",
+                "type": [
+                  "null",
+                  "number"
+                ]
+              },
               "in_hand_date": {
                 "description": "estimated delivery with standard shipping",
                 "type": "string"
@@ -1222,6 +1813,34 @@
               "review_required": {
                 "description": "SendCutSend staff review the part before cutting",
                 "type": "boolean"
+              },
+              "services": {
+                "description": "what each service adds for the whole quantity",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "count": {
+                      "description": "bends or tapped holes per part",
+                      "type": "integer"
+                    },
+                    "service": {
+                      "type": "string"
+                    },
+                    "total_usd": {
+                      "description": "for the whole quantity, minimum charges included",
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "service",
+                    "total_usd"
+                  ],
+                  "type": "object"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
               },
               "thickness_in": {
                 "type": "string"

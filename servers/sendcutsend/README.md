@@ -1,6 +1,6 @@
 # sendcutsend
 
-Upload flat parts to [SendCutSend](https://sendcutsend.com), price them in any material, and build saved carts that the account owner checks out in a browser.
+Upload flat parts to [SendCutSend](https://sendcutsend.com), price them in any material with bending, tapping and finishing, and build saved carts that the account owner checks out in a browser.
 
 ## Tools
 
@@ -10,15 +10,41 @@ Upload flat parts to [SendCutSend](https://sendcutsend.com), price them in any m
 | `get_upload_url` | A pre-signed URL to PUT a part file to (DXF, DWG, AI, EPS or STEP), for files too big or too binary to pass inline. |
 | `create_part` | Add a part from inline DXF text or an uploaded file, wait for SendCutSend to process it, and report its size and any problems. |
 | `get_part`, `list_parts` | The account's parts. |
+| `get_part_features` | A part's bend lines and round holes, with the IDs services refer to, the taps that fit each hole in a material, and the part's saved services (its last order, or the bends found in a 3D file). |
+| `list_finishes` | Powder coat, anodizing and plating options. |
 | `delete_part` | Delete a part. |
-| `quote_part` | Price a part for a quantity: in every material, cheapest first, or in one material with price breaks and delivery dates. |
-| `create_saved_cart` | Put parts in a saved cart and return its checkout URL. |
+| `quote_part` | Price a part for a quantity: cutting in every material, cheapest first, or in one material with price breaks, delivery dates and services, each with its cost. |
+| `create_saved_cart` | Put parts, with their services, in a saved cart and return its checkout URL. |
 | `list_saved_carts`, `get_saved_cart` | The account's saved carts. |
 | `delete_saved_cart` | Delete a saved cart. |
 
 Nothing here orders or pays. The user opens the saved cart's checkout URL while signed in, and it loads the parts into their cart to review and pay.
 
-Prices are for cutting only. Services such as bending, tapping, countersinking and finishing aren't supported yet: add them on the website before checking out.
+### Services
+
+`quote_part` and `create_saved_cart` take a `services` object per part:
+
+```json
+{
+  "bends": [{"id": "e64ebc60c64", "angle": 90, "direction": "up"}],
+  "taps": [{"hole_ids": ["eec946baa4e"], "tap": "M4 x 0.7"}],
+  "powder": "matte_black",
+  "deburring": true
+}
+```
+
+Bend line and hole IDs come from `get_part_features`. One finish at most: `powder`, `anodizing` or `plating`, with a value from `list_finishes`. `tumbling` and `deburring` are switches.
+
+SendCutSend's website checks services in the browser, and its API accepts anything: taps on holes that don't exist, unknown colours, parts with some bend lines left out. So the server checks every request first, against the part's geometry and SendCutSend's published rules:
+
+- the material offers the service;
+- every bend line has a bend, at an angle within the material's limits, on a line no longer than its press brake;
+- a tapped hole is no larger than the tap's drill (SendCutSend enlarges smaller holes), its centre is at least half the drill plus the material's minimum from any edge, and at least half the bending die from any bend line;
+- the finish exists, and the part has a cutout at least 0.063 in across to hang from.
+
+The website also checks flange lengths and tool clearance with a geometry engine that runs in the browser. The server can't, so look over bent or tapped parts in the cart before paying.
+
+Countersinking, hardware insertion, dimpling, engraving and welding aren't supported; add them on the website.
 
 ### Saved carts and the account's cart
 
@@ -52,7 +78,7 @@ Anyone with the cookie can use the account as its owner. Store it as a secret.
 
 ### Network
 
-The server needs outbound HTTPS to `app.sendcutsend.com` and `sendcutsend.s3-accelerate.amazonaws.com` (part uploads). Agents that upload with `get_upload_url` need the S3 host too.
+The server needs outbound HTTPS to `app.sendcutsend.com`, `sendcutsend.s3-accelerate.amazonaws.com` (part uploads) and `cdn.sendcutsend.com` (parts' processed geometry). Agents that upload with `get_upload_url` need the S3 host too.
 
 ## How it works
 
@@ -60,4 +86,4 @@ It calls the JSON API that SendCutSend's web app uses. That API is undocumented 
 
 Each tool call starts a new site session: it loads the app page with the cookie, takes the CSRF token and app settings from it, then makes the API calls. A page that shows a guest session means the cookie was rejected.
 
-The nightly live test (`make test-live`) uploads and prices a part as a guest, which needs no account. Set `SENDCUTSEND_CREDENTIALS_FILE` to also run the account test, which creates a part and a saved cart and deletes both.
+The nightly live test (`make test-live`) uploads and prices a part as a guest, which needs no account. Set `SENDCUTSEND_CREDENTIALS_FILE` to also run the account test, which creates a part, prices it with a tap and powder coating, puts it in a saved cart, and deletes both.

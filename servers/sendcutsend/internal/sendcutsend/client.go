@@ -35,6 +35,9 @@ const DefaultBaseURL = "https://app.sendcutsend.com"
 // forwards arbitrary URLs.
 var DefaultUploadHosts = []string{"sendcutsend.s3-accelerate.amazonaws.com", "sendcutsend.s3.amazonaws.com"}
 
+// DefaultModelHosts serve processed parts' geometry.
+var DefaultModelHosts = []string{"cdn.sendcutsend.com"}
+
 const (
 	credentialsCookie = "user_credentials"
 	maxResponseBytes  = 16 << 20
@@ -61,6 +64,8 @@ type Options struct {
 	Version string
 	// UploadHosts overrides DefaultUploadHosts.
 	UploadHosts []string
+	// ModelHosts overrides DefaultModelHosts.
+	ModelHosts []string
 	// PollInterval is how often to check a part that is still processing.
 	PollInterval time.Duration
 	// ProcessTimeout is how long create_part waits for processing.
@@ -76,6 +81,7 @@ type Client struct {
 	credsFile      string
 	userAgent      string
 	uploadHosts    []string
+	modelHosts     []string
 	pollInterval   time.Duration
 	processTimeout time.Duration
 	transport      http.RoundTripper
@@ -99,6 +105,7 @@ func NewClient(opts Options) (*Client, error) {
 		credsFile:      opts.CredentialsFile,
 		userAgent:      "mcp-servers-sendcutsend/" + opts.Version + " (+https://github.com/solidDoWant/mcp-servers)",
 		uploadHosts:    opts.UploadHosts,
+		modelHosts:     opts.ModelHosts,
 		pollInterval:   opts.PollInterval,
 		processTimeout: opts.ProcessTimeout,
 		transport:      http.DefaultTransport,
@@ -107,6 +114,10 @@ func NewClient(opts Options) (*Client, error) {
 
 	if len(c.uploadHosts) == 0 {
 		c.uploadHosts = DefaultUploadHosts
+	}
+
+	if len(c.modelHosts) == 0 {
+		c.modelHosts = DefaultModelHosts
 	}
 
 	if c.pollInterval <= 0 {
@@ -405,6 +416,16 @@ func (c *Client) uploadHostAllowed(u *url.URL) bool {
 	return false
 }
 
+func (c *Client) modelHostAllowed(u *url.URL) bool {
+	for _, h := range c.modelHosts {
+		if strings.EqualFold(u.Host, h) {
+			return true
+		}
+	}
+
+	return false
+}
+
 // put uploads data to a pre-signed upload URL.
 func (s *session) put(ctx context.Context, uploadURL string, data []byte) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPut, uploadURL, bytes.NewReader(data))
@@ -428,6 +449,34 @@ func (s *session) put(ctx context.Context, uploadURL string, data []byte) error 
 	}
 
 	return nil
+}
+
+// fetchPublic GETs a public file from a SendCutSend host other than the
+// app, without the app's cookies.
+func (s *session) fetchPublic(ctx context.Context, target string) ([]byte, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, target, nil)
+	if err != nil {
+		return nil, fmt.Errorf("build request: %w", err)
+	}
+
+	req.Header.Set("User-Agent", s.c.userAgent)
+
+	resp, err := (&http.Client{Transport: s.c.transport, Timeout: s.c.timeout}).Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("call SendCutSend: %w", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck // read-only body
+
+	raw, err := io.ReadAll(io.LimitReader(resp.Body, maxResponseBytes))
+	if err != nil {
+		return nil, fmt.Errorf("read SendCutSend response: %w", err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("SendCutSend returned HTTP %d: %s", resp.StatusCode, snippet(raw))
+	}
+
+	return raw, nil
 }
 
 // uploaded reports whether a file is at the upload URL. Uploaded files are

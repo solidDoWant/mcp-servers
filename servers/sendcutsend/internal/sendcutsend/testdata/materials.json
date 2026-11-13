@@ -13,27 +13,81 @@
    "operations": [
     {
      "operation": "tumbling",
-     "id": 732
+     "configuration": {}
     },
     {
      "operation": "etching",
-     "id": 733
+     "configuration": {}
     },
     {
      "operation": "powder",
-     "id": 909
+     "configuration": {
+      "skip_deburring": true
+     }
     },
     {
      "operation": "plating",
-     "id": 690
+     "configuration": {
+      "skip_deburring": true
+     }
     },
     {
      "operation": "bending",
-     "id": 151
+     "configuration": {
+      "k_factor": ".38",
+      "bottom_die": ".472",
+      "bend_radius": ".024",
+      "max_bend_angle": "130",
+      "max_bend_width": "44",
+      "min_bend_angle": "5",
+      "min_flange_length": ".255",
+      "min_die_contact_soft": "0.3",
+      "effective_bend_radius": "0.045",
+      "ultimate_tensile_strength": "27"
+     }
     },
     {
      "operation": "dimple_forming",
-     "id": 920
+     "configuration": {
+      "dimple_pressures": [
+       {
+        "size": 1,
+        "value": "400"
+       },
+       {
+        "size": 2,
+        "value": "500"
+       },
+       {
+        "size": 3,
+        "value": "500"
+       },
+       {
+        "size": 4,
+        "value": "700"
+       },
+       {
+        "size": 5,
+        "value": "700"
+       },
+       {
+        "size": 6,
+        "value": "900"
+       },
+       {
+        "size": 7,
+        "value": "900"
+       },
+       {
+        "size": 8,
+        "value": "1100"
+       },
+       {
+        "size": 9,
+        "value": "1200"
+       }
+      ]
+     }
     }
    ]
   },
@@ -50,51 +104,143 @@
    "operations": [
     {
      "operation": "tumbling",
-     "id": 693
+     "configuration": {}
     },
     {
      "operation": "powder",
-     "id": 445
+     "configuration": {}
     },
     {
      "operation": "tapping",
-     "id": 288
+     "configuration": {
+      "tap_sizes": [
+       {
+        "tap": "M2 x 0.4"
+       },
+       {
+        "tap": "M2.5 x 0.45"
+       },
+       {
+        "tap": "M3 x 0.5"
+       },
+       {
+        "tap": "M4 x 0.7"
+       },
+       {
+        "tap": "4-40"
+       },
+       {
+        "tap": "6-32"
+       },
+       {
+        "tap": "8-32"
+       },
+       {
+        "tap": "10-32"
+       },
+       {
+        "tap": "1-64"
+       },
+       {
+        "tap": "1-72"
+       },
+       {
+        "tap": "2-56"
+       }
+      ],
+      "enable_tapping": true,
+      "min_hole_to_edge_delta": ".020"
+     }
     },
     {
      "operation": "engraving",
-     "id": 1110
+     "configuration": {}
     },
     {
      "operation": "bending",
-     "id": 135
+     "configuration": {
+      "k_factor": ".42",
+      "bottom_die": ".472",
+      "bend_radius": ".024",
+      "max_bend_angle": "130",
+      "max_bend_width": "44",
+      "min_bend_angle": "5",
+      "min_flange_length": ".254",
+      "min_die_contact_soft": ".3",
+      "effective_bend_radius": "0.035",
+      "ultimate_tensile_strength": "17"
+     }
     },
     {
      "operation": "etching",
-     "id": 694
+     "configuration": {}
     },
     {
      "operation": "welding",
-     "id": 1349
+     "configuration": {
+      "max_welding_gap": ".030"
+     }
     },
     {
      "operation": "deburring",
-     "id": 133
+     "configuration": {
+      "add_by_default": true
+     }
     },
     {
      "operation": "anodizing",
-     "id": 613
+     "configuration": {}
     },
     {
      "operation": "hardware",
-     "id": 651
+     "configuration": {}
     },
     {
      "operation": "dimple_forming",
-     "id": 865
+     "configuration": {
+      "dimple_pressures": [
+       {
+        "size": 1,
+        "value": "400"
+       },
+       {
+        "size": 2,
+        "value": "600"
+       },
+       {
+        "size": 3,
+        "value": "700"
+       },
+       {
+        "size": 4,
+        "value": "800"
+       },
+       {
+        "size": 5,
+        "value": "800"
+       },
+       {
+        "size": 6,
+        "value": "800"
+       },
+       {
+        "size": 7,
+        "value": "800"
+       },
+       {
+        "size": 8,
+        "value": "800"
+       },
+       {
+        "size": 9,
+        "value": "1000"
+       }
+      ]
+     }
     },
     {
      "operation": "detabbing",
-     "id": 1504
+     "configuration": {}
     }
    ]
   },
@@ -111,11 +257,58 @@
    "operations": [
     {
      "operation": "countersinking",
-     "id": 1006
+     "configuration": {
+      "csk_major_diameter_max": 6,
+      "csk_major_diameter_min": 3,
+      "min_hole_to_edge_distance": ".246"
+     }
     },
     {
      "operation": "tapping",
-     "id": 1007
+     "configuration": {
+      "tap_sizes": [
+       {
+        "tap": "M4 x 0.7"
+       },
+       {
+        "tap": "M5 x 0.8"
+       },
+       {
+        "tap": "M6 x 1.0"
+       },
+       {
+        "tap": "M8 x 1.25"
+       },
+       {
+        "tap": "M10 x 1.5"
+       },
+       {
+        "tap": "8-32"
+       },
+       {
+        "tap": "10-32"
+       },
+       {
+        "tap": "1/4-20"
+       },
+       {
+        "tap": "1/4-28"
+       },
+       {
+        "tap": "5/16-18"
+       },
+       {
+        "tap": "5/16-24"
+       },
+       {
+        "tap": "3/8-16"
+       },
+       {
+        "tap": "3/8-24"
+       }
+      ],
+      "min_hole_to_edge_delta": ".038"
+     }
     }
    ]
   },
@@ -132,27 +325,67 @@
    "operations": [
     {
      "operation": "tapping",
-     "id": 355
+     "configuration": {
+      "tap_sizes": [
+       {
+        "tap": "1/4-20"
+       },
+       {
+        "tap": "1/4-28"
+       },
+       {
+        "tap": "5/16-18"
+       },
+       {
+        "tap": "5/16-24"
+       },
+       {
+        "tap": "3/8-16"
+       },
+       {
+        "tap": "3/8-24"
+       },
+       {
+        "tap": "1/2-13"
+       },
+       {
+        "tap": "1/2-20"
+       },
+       {
+        "tap": "M6 x 1.0"
+       },
+       {
+        "tap": "M8 x 1.25"
+       },
+       {
+        "tap": "M10 x 1.5"
+       }
+      ],
+      "enable_tapping": true,
+      "min_hole_to_edge_delta": ".150"
+     }
     },
     {
      "operation": "powder",
-     "id": 500
+     "configuration": {}
     },
     {
      "operation": "deburring",
-     "id": 70
+     "configuration": {
+      "add_by_default": true
+     }
     },
     {
      "operation": "etching",
-     "id": 801
+     "configuration": {}
     },
     {
      "operation": "tumbling",
-     "id": 802
+     "configuration": {}
     },
     {
      "operation": "hardware",
-     "id": 883
+     "configuration": {}
     }
    ]
   },
@@ -169,7 +402,143 @@
    "operations": [
     {
      "operation": "etching",
-     "id": 1185
+     "configuration": {}
+    }
+   ]
+  },
+  {
+   "id": 45,
+   "sku": "CRS-074",
+   "name": "A36/1008 Mild Steel",
+   "fullname": "CRS A36/1008 Mild Steel (.074\")",
+   "category": "Steel",
+   "group": "Metals",
+   "form": "sheet",
+   "thickness": ".074",
+   "out_of_stock": false,
+   "operations": [
+    {
+     "operation": "tapping",
+     "configuration": {
+      "tap_sizes": [
+       {
+        "tap": "M2 x 0.4"
+       },
+       {
+        "tap": "M2.5 x 0.45"
+       },
+       {
+        "tap": "M3 x 0.5"
+       },
+       {
+        "tap": "M4 x 0.7"
+       },
+       {
+        "tap": "M5 x 0.8"
+       },
+       {
+        "tap": "M6 x 1.0"
+       },
+       {
+        "tap": "4-40"
+       },
+       {
+        "tap": "6-32"
+       },
+       {
+        "tap": "8-32"
+       },
+       {
+        "tap": "10-32"
+       }
+      ],
+      "enable_tapping": true,
+      "min_hole_to_edge_delta": ".022"
+     }
+    },
+    {
+     "operation": "dimple_forming",
+     "configuration": {
+      "dimple_pressures": [
+       {
+        "size": 3,
+        "value": "700"
+       },
+       {
+        "size": 4,
+        "value": "700"
+       },
+       {
+        "size": 5,
+        "value": "700"
+       },
+       {
+        "size": 6,
+        "value": "800"
+       },
+       {
+        "size": 7,
+        "value": "1000"
+       },
+       {
+        "size": 8,
+        "value": "1000"
+       },
+       {
+        "size": 9,
+        "value": "1200"
+       }
+      ]
+     }
+    },
+    {
+     "operation": "hardware",
+     "configuration": {}
+    },
+    {
+     "operation": "tumbling",
+     "configuration": {}
+    },
+    {
+     "operation": "bending",
+     "configuration": {
+      "k_factor": ".4",
+      "bottom_die": ".472",
+      "bend_radius": ".024",
+      "max_bend_angle": "130",
+      "max_bend_width": "44",
+      "min_bend_angle": "5",
+      "min_flange_length": ".255",
+      "min_die_contact_soft": "0.3",
+      "effective_bend_radius": "0.063",
+      "ultimate_tensile_strength": "27"
+     }
+    },
+    {
+     "operation": "plating",
+     "configuration": {}
+    },
+    {
+     "operation": "etching",
+     "configuration": {}
+    },
+    {
+     "operation": "deburring",
+     "configuration": {
+      "add_by_default": false
+     }
+    },
+    {
+     "operation": "powder",
+     "configuration": {
+      "skip_deburring": false
+     }
+    },
+    {
+     "operation": "welding",
+     "configuration": {
+      "max_welding_gap": ".030"
+     }
     }
    ]
   }

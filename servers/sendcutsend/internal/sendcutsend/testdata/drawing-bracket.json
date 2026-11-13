@@ -1,0 +1,128 @@
+{
+ "data": {
+  "ai_builder": false,
+  "area": "18.39315870455390910781821563643126017603695207390414780829561659",
+  "builder": false,
+  "bad_entities": [],
+  "calculated_area": "8.0929898300037200074400148800297544774562589125178250356500712996",
+  "calculated_entities": 8,
+  "contours": 8,
+  "customer_filename": null,
+  "filename": "bracket_short.DXF",
+  "raw_calculated_area": "7.55271715543431",
+  "weight_area": "7.357263481821563643127286254572504070414780829561659123318246636",
+  "raw_weight_area": "6.399185938371877",
+  "deleted": false,
+  "entity_colors": [],
+  "nested": false,
+  "has_preview": true,
+  "id": 6001,
+  "is_step": false,
+  "units": "mm",
+  "progress": 100,
+  "state": "complete",
+  "thickness": 0.0,
+  "tube_thickness": 0.0,
+  "processor_version": 6,
+  "cut_drawing_id": null,
+  "drawing_warnings": [],
+  "likely_drawing_format": null,
+  "possible_drawing_formats": [
+   "sheet"
+  ],
+  "drawing_errors": [],
+  "dfm_status": "",
+  "part_area": 0.0,
+  "part_volume": 0.0,
+  "model_preview_url": "https://cdn.sendcutsend.com/preview/2754c_2dba8d86-26d3-449d-a324-4a42c3f1e860-bracket_short_conv.svg",
+  "model_width": "4.7021299212598425196850393700787",
+  "model_height": "3.9116653543307086614173228346457",
+  "model_length": "0.0",
+  "smithy_part_id": null,
+  "tube_shape": "unknown",
+  "bend_compensation_available": false,
+  "has_notes": false,
+  "has_front_engraving": false,
+  "has_back_engraving": false,
+  "created": "2022-12-15T06:28:09Z",
+  "original_url": "https://{{UPLOAD_HOST}}/drawings/abc-bracket_short.DXF",
+  "cut_original_url": "",
+  "preview_url": "https://cdn.sendcutsend.com/preview/2754c_2dba8d86-26d3-449d-a324-4a42c3f1e860-bracket_short_conv.svg",
+  "model_url": "https://{{MODEL_HOST}}/json/bracket_conv.json",
+  "original_model_url": "",
+  "original_json_url": "",
+  "machining_features_data_url": "",
+  "is_overridden": false,
+  "width": "4.7021299212598425196850393700787",
+  "height": "3.9116653543307086614173228346457",
+  "length": "0.0",
+  "original_width": "119.4341",
+  "original_height": "99.3563",
+  "original_length": "0.0",
+  "quantity": null,
+  "nested_drawings": [],
+  "is_assembly": false,
+  "part": {
+   "anodizing": "",
+   "id": 1,
+   "user_id": 1001,
+   "critical_tolerance": [],
+   "machining_tapping": [],
+   "machining_tapping_attachments": [],
+   "machining_tapping_note": null,
+   "countersinking": [],
+   "default_material": 45,
+   "default_quantity": 2,
+   "dimple_forming": [],
+   "drawing_id": 6001,
+   "engraving": {},
+   "hardware": [],
+   "bend_config": [],
+   "bend_compensation": false,
+   "bending": [
+    {
+     "id": "e64ebc60c64",
+     "angle": 90,
+     "direction": "up"
+    },
+    {
+     "id": "ef470022851",
+     "angle": 90,
+     "direction": "down"
+    },
+    {
+     "id": "e61229e1e29",
+     "angle": 90,
+     "direction": "up"
+    }
+   ],
+   "welding": [],
+   "operations": [
+    "bending",
+    "powder",
+    "tapping"
+   ],
+   "acknowledgements": [],
+   "plating": "",
+   "powder": "matte_black",
+   "tapping": [
+    {
+     "id": "eec946baa4e",
+     "tap": "M4 x 0.7"
+    }
+   ],
+   "produced": false,
+   "ordered": false,
+   "locked": false,
+   "skip_dfm": false,
+   "deburring_hidden": false,
+   "finishing_implicit": true,
+   "configured_preview_urls": null
+  },
+  "user": {
+   "id": 1001,
+   "name": "Test User"
+  },
+  "folder": null
+ }
+}

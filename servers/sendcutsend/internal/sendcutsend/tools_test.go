@@ -484,10 +484,10 @@ func TestListMaterials(t *testing.T) {
 		args map[string]any
 		want []string
 	}{
-		{"lists sheet materials by default", map[string]any{}, []string{"CRS-030", "ALU-063", "ABSBLACK-125", "SST-500"}},
+		{"lists sheet materials by default", map[string]any{}, []string{"CRS-030", "ALU-063", "ABSBLACK-125", "SST-500", "CRS-074"}},
 		{"keeps one category, ignoring case", map[string]any{"category": "stainless steel"}, []string{"SST-500"}},
-		{"keeps materials offering a service", map[string]any{"service": "bending"}, []string{"CRS-030", "ALU-063"}},
-		{"leaves out materials that are out of stock", map[string]any{"in_stock_only": true}, []string{"CRS-030", "ALU-063", "ABSBLACK-125"}},
+		{"keeps materials offering a service", map[string]any{"service": "bending"}, []string{"CRS-030", "ALU-063", "CRS-074"}},
+		{"leaves out materials that are out of stock", map[string]any{"in_stock_only": true}, []string{"CRS-030", "ALU-063", "ABSBLACK-125", "CRS-074"}},
 		{"lists tubes on request", map[string]any{"form": "tube"}, []string{"DCOL-RND-125-065"}},
 		{"matches text in the name or SKU", map[string]any{"query": "abs"}, []string{"ABSBLACK-125"}},
 		{"stops at the limit", map[string]any{"limit": 2}, []string{"CRS-030", "ALU-063"}},

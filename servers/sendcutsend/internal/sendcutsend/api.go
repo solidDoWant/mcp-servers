@@ -73,7 +73,35 @@ type Drawing struct {
 	Errors           []Issue  `json:"drawing_errors"`
 	Warnings         []Issue  `json:"drawing_warnings"`
 	PreviewURL       string   `json:"preview_url"`
+	ModelURL         string   `json:"model_url"`
 	Created          string   `json:"created"`
+	// Part is the part's saved configuration: what it was last ordered or
+	// configured with, or the bends SendCutSend detected in a 3D file.
+	Part *SavedPart `json:"part"`
+}
+
+// SavedPart is a part's saved service configuration.
+type SavedPart struct {
+	Operations []string     `json:"operations"`
+	Bending    []BendConfig `json:"bending"`
+	Tapping    []TapConfig  `json:"tapping"`
+	Powder     string       `json:"powder"`
+	Anodizing  string       `json:"anodizing"`
+	Plating    string       `json:"plating"`
+}
+
+// BendConfig is how to bend one bend line.
+type BendConfig struct {
+	ID        string  `json:"id"`
+	Angle     float64 `json:"angle"`
+	Direction string  `json:"direction"`
+	Radius    float64 `json:"radius,omitempty"`
+}
+
+// TapConfig is the tap for one hole.
+type TapConfig struct {
+	ID  string `json:"id"`
+	Tap string `json:"tap"`
 }
 
 // Name is the file name the customer uploaded.
@@ -221,9 +249,54 @@ func (s *session) deleteDrawing(ctx context.Context, id int64) error {
 	return err
 }
 
-// Operation is a service (bending, tapping, ...) a material offers.
+// Operation is a service (bending, tapping, ...) a material offers, with
+// its limits for that material.
 type Operation struct {
-	Operation string `json:"operation"`
+	Operation     string          `json:"operation"`
+	Configuration json.RawMessage `json:"configuration"`
+}
+
+// TappingLimits are a material's tapping rules.
+type TappingLimits struct {
+	TapSizes []struct {
+		Tap string `json:"tap"`
+	} `json:"tap_sizes"`
+	MinHoleToEdge Decimal `json:"min_hole_to_edge_delta"`
+}
+
+// BendingLimits are a material's bending rules. Lengths are in inches.
+type BendingLimits struct {
+	MinAngle        Decimal `json:"min_bend_angle"`
+	MaxAngle        Decimal `json:"max_bend_angle"`
+	MaxWidth        Decimal `json:"max_bend_width"`
+	BendRadius      Decimal `json:"effective_bend_radius"`
+	BottomDie       Decimal `json:"bottom_die"`
+	MinFlangeLength Decimal `json:"min_flange_length"`
+}
+
+// operation returns the material's configuration for one service.
+func (m *Material) operation(name string) (*Operation, bool) {
+	for i := range m.Operations {
+		if m.Operations[i].Operation == name {
+			return &m.Operations[i], true
+		}
+	}
+
+	return nil, false
+}
+
+// limits decodes a service's configuration into out.
+func (m *Material) limits(name string, out any) error {
+	op, ok := m.operation(name)
+	if !ok || len(op.Configuration) == 0 || string(op.Configuration) == "null" {
+		return fmt.Errorf("%s doesn't offer %s", m.SKU, name)
+	}
+
+	if err := json.Unmarshal(op.Configuration, out); err != nil {
+		return fmt.Errorf("decode %s's %s limits: %w", m.SKU, name, err)
+	}
+
+	return nil
 }
 
 // Material is one stock material and thickness.
@@ -265,6 +338,107 @@ func (s *session) materials(ctx context.Context) ([]Material, error) {
 	return out.Data, nil
 }
 
+// TapSize is a tap and the drill size SendCutSend cuts its hole to, in
+// inches.
+type TapSize struct {
+	Tap               string  `json:"tap"`
+	Drill             float64 `json:"drill"`
+	MeasurementSystem string  `json:"measurement_system"`
+	Deleted           bool    `json:"deleted"`
+}
+
+func (s *session) tapSizes(ctx context.Context) (map[string]TapSize, error) {
+	var out envelope[[]TapSize]
+	if err := s.call(ctx, http.MethodGet, "/tap_sizes", nil, &out); err != nil {
+		return nil, err
+	}
+
+	taps := make(map[string]TapSize, len(out.Data))
+
+	for _, t := range out.Data {
+		if !t.Deleted {
+			taps[t.Tap] = t
+		}
+	}
+
+	return taps, nil
+}
+
+// Finish is one powder coat, anodizing or plating option.
+type Finish struct {
+	Value      string `json:"value"`
+	FinishType string `json:"finish_type"`
+	Color      string `json:"color"`
+	Code       string `json:"code"`
+}
+
+// finishes reads the finish options from the ordering catalog SendCutSend
+// publishes for automated clients.
+func (s *session) finishes(ctx context.Context) ([]Finish, error) {
+	var out struct {
+		FinishOptions []Finish `json:"finish_options"`
+	}
+
+	if err := s.call(ctx, http.MethodGet, "/sendcutsend-catalog.json", nil, &out); err != nil {
+		return nil, err
+	}
+
+	return out.FinishOptions, nil
+}
+
+// model downloads a processed part's geometry from SendCutSend's CDN.
+func (s *session) model(ctx context.Context, d *Drawing) (*Model, error) {
+	if d.ModelURL == "" {
+		return nil, fmt.Errorf("part %d has no processed geometry yet", d.ID)
+	}
+
+	u, err := url.Parse(d.ModelURL)
+	if err != nil || u.Scheme != "https" || !s.c.modelHostAllowed(u) {
+		return nil, fmt.Errorf("part %d's geometry is at an unexpected address", d.ID)
+	}
+
+	raw, err := s.fetchPublic(ctx, d.ModelURL)
+	if err != nil {
+		return nil, fmt.Errorf("download part %d's geometry: %w", d.ID, err)
+	}
+
+	var m Model
+	if err := json.Unmarshal(raw, &m); err != nil {
+		return nil, fmt.Errorf("decode part %d's geometry: %w", d.ID, err)
+	}
+
+	return &m, nil
+}
+
+// OperationCost is what one service adds to a line.
+type OperationCost struct {
+	Total          Decimal `json:"total"`
+	OperationCount int     `json:"operation_count"`
+}
+
+// OperationCosts maps services to their cost. The API sends 0 instead of an
+// object for free services.
+type OperationCosts map[string]OperationCost
+
+// UnmarshalJSON skips the entries that aren't objects.
+func (o *OperationCosts) UnmarshalJSON(b []byte) error {
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return fmt.Errorf("operation costs: %w", err)
+	}
+
+	*o = OperationCosts{}
+
+	for k, v := range raw {
+		var c OperationCost
+		if json.Unmarshal(v, &c) == nil {
+			(*o)[k] = c
+		}
+	}
+
+	return nil
+}
+
 // PriceBreak is the price per part from a quantity up.
 type PriceBreak struct {
 	Quantity  int     `json:"quantity"`
@@ -274,15 +448,16 @@ type PriceBreak struct {
 
 // Quote is the price of a part in one material.
 type Quote struct {
-	MaterialSKU    string       `json:"material_sku"`
-	Quantity       int          `json:"quantity"`
-	UnitCost       Decimal      `json:"unit_cost"`
-	TotalCost      Decimal      `json:"total_cost"`
-	Discount       float64      `json:"discount"`
-	ReviewRequired bool         `json:"review_required"`
-	Errors         []Issue      `json:"errors"`
-	Warnings       []Issue      `json:"warnings"`
-	Breaks         []PriceBreak `json:"discounts"`
+	MaterialSKU    string         `json:"material_sku"`
+	Quantity       int            `json:"quantity"`
+	UnitCost       Decimal        `json:"unit_cost"`
+	TotalCost      Decimal        `json:"total_cost"`
+	Discount       float64        `json:"discount"`
+	ReviewRequired bool           `json:"review_required"`
+	Errors         []Issue        `json:"errors"`
+	Warnings       []Issue        `json:"warnings"`
+	Breaks         []PriceBreak   `json:"discounts"`
+	OperationCosts OperationCosts `json:"operation_costs"`
 }
 
 // QuoteDates are the delivery estimates for a single-material quote.
@@ -294,8 +469,12 @@ type QuoteDates struct {
 // quotes prices a drawing. With sku empty it prices every material, without
 // delivery dates; with a SKU it prices that material only, with dates. An
 // unknown SKU yields no quotes rather than an error.
-func (s *session) quotes(ctx context.Context, drawingID int64, quantity int, sku string) ([]Quote, QuoteDates, error) {
+func (s *session) quotes(ctx context.Context, drawingID int64, quantity int, sku string, extra map[string]any) ([]Quote, QuoteDates, error) {
 	body := map[string]any{"drawing_id": drawingID, "quantity": quantity, "material_sku": nil}
+	for k, v := range extra {
+		body[k] = v
+	}
+
 	if sku != "" {
 		body["material_sku"] = sku
 	}
@@ -318,13 +497,15 @@ func (s *session) quotes(ctx context.Context, drawingID int64, quantity int, sku
 
 // CartItem is one line in a cart.
 type CartItem struct {
-	ID             int64   `json:"id"`
-	Quantity       int     `json:"quantity"`
-	UnitCost       Decimal `json:"unit_cost"`
-	TotalCost      Decimal `json:"total_cost"`
-	CanOrder       bool    `json:"can_order"`
-	ReviewRequired bool    `json:"review_required"`
-	QuoteErrors    []Issue `json:"quote_errors"`
+	ID             int64          `json:"id"`
+	Quantity       int            `json:"quantity"`
+	UnitCost       Decimal        `json:"unit_cost"`
+	TotalCost      Decimal        `json:"total_cost"`
+	CanOrder       bool           `json:"can_order"`
+	ReviewRequired bool           `json:"review_required"`
+	QuoteErrors    []Issue        `json:"quote_errors"`
+	Operations     []string       `json:"operations"`
+	OperationCosts OperationCosts `json:"operation_costs"`
 	Material       struct {
 		SKU string `json:"sku"`
 	} `json:"material"`
@@ -354,8 +535,9 @@ func (s *session) cartItems(ctx context.Context) ([]CartItem, error) {
 	return out.Data, nil
 }
 
-// addToCart adds a cut-only part to this session's cart.
-func (s *session) addToCart(ctx context.Context, drawingID, materialID int64, quantity int) (*CartItem, *CartTotals, error) {
+// addToCart adds a part to the account's cart. extra holds the services'
+// fields; nil means cut only.
+func (s *session) addToCart(ctx context.Context, drawingID, materialID int64, quantity int, extra map[string]any) (*CartItem, *CartTotals, error) {
 	body := map[string]any{
 		"drawing_id":         drawingID,
 		"material_id":        materialID,
@@ -363,6 +545,9 @@ func (s *session) addToCart(ctx context.Context, drawingID, materialID int64, qu
 		"quantity":           quantity,
 		"operations":         []any{},
 		"finishing_explicit": true,
+	}
+	for k, v := range extra {
+		body[k] = v
 	}
 
 	var out struct {

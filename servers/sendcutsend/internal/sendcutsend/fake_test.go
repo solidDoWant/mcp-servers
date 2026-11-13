@@ -27,6 +27,7 @@ const (
 	testCreds = "0123abcd%3A%3A1001"
 	testCSRF  = "test-csrf-token"
 	partID    = 5001
+	bracketID = 6001
 	cartID    = 7001
 )
 
@@ -111,6 +112,12 @@ func newFake(t *testing.T) *fake {
 		f.write(w, f.fixture("drawings-list.json"))
 	}))
 	route("GET /drawings/{id}", f.signed(func(w http.ResponseWriter, r *http.Request) {
+		if r.PathValue("id") == strconv.Itoa(bracketID) {
+			f.write(w, f.fixture("drawing-bracket.json"))
+
+			return
+		}
+
 		if r.PathValue("id") != strconv.Itoa(partID) {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 
@@ -140,7 +147,14 @@ func newFake(t *testing.T) *fake {
 		f.write(w, f.fixture("materials.json"))
 	}))
 	route("POST /drawings/{id}/quotes", f.signed(func(w http.ResponseWriter, r *http.Request) {
-		sku, _ := f.body(r)["material_sku"].(string)
+		body := f.body(r)
+		sku, _ := body["material_sku"].(string)
+
+		if ops, _ := body["operations"].([]any); len(ops) > 0 {
+			f.write(w, f.fixture("quote-services.json"))
+
+			return
+		}
 
 		switch sku {
 		case "":
@@ -158,9 +172,30 @@ func newFake(t *testing.T) *fake {
 
 		f.write(w, string(b))
 	}))
-	route("POST /cart", f.signed(func(w http.ResponseWriter, _ *http.Request) {
+	route("POST /cart", f.signed(func(w http.ResponseWriter, r *http.Request) {
+		if ops, _ := f.body(r)["operations"].([]any); len(ops) > 0 {
+			f.addCartItem(w, "cart-item-services.json")
+
+			return
+		}
+
 		f.addCartItem(w, "cart-item.json")
 	}))
+	route("GET /tap_sizes", f.signed(func(w http.ResponseWriter, _ *http.Request) {
+		f.write(w, f.fixture("tap-sizes.json"))
+	}))
+	route("GET /sendcutsend-catalog.json", f.signed(func(w http.ResponseWriter, _ *http.Request) {
+		f.write(w, f.fixture("catalog.json"))
+	}))
+	// The CDN that serves parts' geometry: it must never see the app's
+	// cookies.
+	route("GET /cdn/json/{name}", func(w http.ResponseWriter, r *http.Request) {
+		if len(r.Cookies()) > 0 {
+			f.t.Errorf("the geometry request carried cookies: %v", r.Cookies())
+		}
+
+		f.write(w, f.fixture("model-bracket.json"))
+	})
 	route("DELETE /cart/{id}", f.signed(func(w http.ResponseWriter, r *http.Request) {
 		id, _ := strconv.ParseInt(r.PathValue("id"), 10, 64)
 
@@ -325,7 +360,9 @@ func (f *fake) fixture(name string) string {
 	b, err := os.ReadFile(filepath.Join("testdata", name))
 	require.NoError(f.t, err)
 
-	return strings.ReplaceAll(string(b), "https://{{UPLOAD_HOST}}/drawings/", f.srv.URL+"/s3/drawings/")
+	out := strings.ReplaceAll(string(b), "https://{{UPLOAD_HOST}}/drawings/", f.srv.URL+"/s3/drawings/")
+
+	return strings.ReplaceAll(out, "https://{{MODEL_HOST}}/", f.srv.URL+"/cdn/")
 }
 
 func (f *fake) write(w http.ResponseWriter, body string) {
@@ -384,6 +421,7 @@ func (f *fake) options(t *testing.T) Options {
 		CredentialsFile: creds,
 		Version:         "test",
 		UploadHosts:     []string{host},
+		ModelHosts:      []string{host},
 		PollInterval:    time.Nanosecond,
 		ProcessTimeout:  time.Duration(math.MaxInt64),
 		HTTPClient:      f.srv.Client(),

@@ -51,7 +51,7 @@ func TestLiveGuestUploadsAndPricesAPart(t *testing.T) {
 	assert.InDelta(t, 2.0, p.Width, 0.001)
 	assert.InDelta(t, 3.0, p.Height, 0.001)
 
-	quotes, _, err := s.quotes(ctx, d.ID, 5, "")
+	quotes, _, err := s.quotes(ctx, d.ID, 5, "", nil)
 	require.NoError(t, err)
 
 	priced := 0
@@ -99,23 +99,40 @@ func TestLiveAccountFlowBuildsAndDeletesASavedCart(t *testing.T) {
 	}), &all)
 	require.NotEmpty(t, all.Quotes)
 
-	sku := all.Quotes[0].MaterialSKU
+	// Mild steel .074 offers tapping and powder coating.
+	const sku = "CRS-074"
+
+	var features FeaturesOutput
+	mcptest.Structured(t, mcptest.CallTool(t, session, "get_part_features", map[string]any{
+		"part_id": part.ID, "material_sku": sku,
+	}), &features)
+	require.Len(t, features.Holes, 1)
+	require.Contains(t, features.Holes[0].TapsThatFit, "M4 x 0.7")
+
+	services := map[string]any{
+		"taps":   []map[string]any{{"hole_ids": []string{features.Holes[0].ID}, "tap": "M4 x 0.7"}},
+		"powder": "matte_black",
+	}
 
 	var one QuoteOutput
 	mcptest.Structured(t, mcptest.CallTool(t, session, "quote_part", map[string]any{
-		"part_id": part.ID, "quantity": 5, "material_sku": sku,
+		"part_id": part.ID, "quantity": 5, "material_sku": sku, "services": services,
 	}), &one)
 	require.Len(t, one.Quotes, 1)
 	assert.NotEmpty(t, one.Quotes[0].EstShipDate)
 	assert.NotEmpty(t, one.Quotes[0].PriceBreaks)
+	require.NotNil(t, one.Quotes[0].GrandTotal)
+	assert.Greater(t, *one.Quotes[0].GrandTotal, one.Quotes[0].TotalPrice, "services cost something")
 
 	var cart CartOutput
 	mcptest.Structured(t, mcptest.CallTool(t, session, "create_saved_cart", map[string]any{
 		"title": "mcp-servers live test (safe to delete)",
-		"items": []map[string]any{{"part_id": part.ID, "material_sku": sku, "quantity": 5}},
+		"items": []map[string]any{{"part_id": part.ID, "material_sku": sku, "quantity": 5, "services": services}},
 	}), &cart)
 	require.Positive(t, cart.ID)
 	assert.True(t, strings.HasPrefix(cart.CheckoutURL, DefaultBaseURL+"/customer#/cart?accept="), cart.CheckoutURL)
+	require.Len(t, cart.Items, 1)
+	assert.InDelta(t, *one.Quotes[0].GrandTotal, *cart.Items[0].TotalPrice, 0.01, "the cart charges what the quote said")
 
 	var got CartOutput
 	mcptest.Structured(t, mcptest.CallTool(t, session, "get_saved_cart", map[string]any{"cart_id": cart.ID}), &got)

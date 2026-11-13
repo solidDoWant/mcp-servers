@@ -1,0 +1,165 @@
+{
+ "finish_options": [
+  {
+   "value": "clear",
+   "finish_type": "anodizing",
+   "color": "Clear",
+   "color_group": "Clear",
+   "code": "Type II, Class II"
+  },
+  {
+   "value": "black",
+   "finish_type": "anodizing",
+   "color": "Black",
+   "color_group": "Black",
+   "code": "Type II, Class II"
+  },
+  {
+   "value": "red",
+   "finish_type": "anodizing",
+   "color": "Red",
+   "color_group": "Red",
+   "code": "Type II, Class II"
+  },
+  {
+   "value": "blue",
+   "finish_type": "anodizing",
+   "color": "Blue",
+   "color_group": "Blue",
+   "code": "Type II, Class II"
+  },
+  {
+   "value": "gold",
+   "finish_type": "anodizing",
+   "color": "Gold",
+   "color_group": "Gold",
+   "code": "Type II, Class II"
+  },
+  {
+   "value": "black_zinc",
+   "finish_type": "plating",
+   "color": "Black Zinc",
+   "color_group": "Black",
+   "code": "Chloride rack electroplating"
+  },
+  {
+   "value": "clear_zinc",
+   "finish_type": "plating",
+   "color": "Clear Zinc",
+   "color_group": "Clear",
+   "code": "Chloride rack electroplating"
+  },
+  {
+   "value": "yellow_zinc",
+   "finish_type": "plating",
+   "color": "Yellow Zinc",
+   "color_group": "Yellow",
+   "code": "Chloride rack electroplating"
+  },
+  {
+   "value": "gloss_black",
+   "finish_type": "powder",
+   "color": "Gloss Black",
+   "color_group": "Black",
+   "code": "Tiger Drylac Wet Black 049/80036 90%"
+  },
+  {
+   "value": "matte_black",
+   "finish_type": "powder",
+   "color": "Matte Black",
+   "color_group": "Black",
+   "code": "Tiger Drylac Solar Black Flat Matte 044/80060 0-9%"
+  },
+  {
+   "value": "wrinkle_black",
+   "finish_type": "powder",
+   "color": "Wrinkle Black",
+   "color_group": "Black",
+   "code": "Cardinal C081-BK176 Semi Gloss 10%"
+  },
+  {
+   "value": "gloss_white",
+   "finish_type": "powder",
+   "color": "Gloss White",
+   "color_group": "White",
+   "code": "Tiger Drylac Bengal White 49/11111 RAL 9003 90%"
+  },
+  {
+   "value": "gloss_red",
+   "finish_type": "powder",
+   "color": "Gloss Red",
+   "color_group": "Red",
+   "code": "Cardinal T009-RD03 RAL 3002 90%"
+  },
+  {
+   "value": "gloss_yellow",
+   "finish_type": "powder",
+   "color": "Gloss Yellow",
+   "color_group": "Yellow",
+   "code": "Cardinal T009-YL01 RAL 1018  90%"
+  },
+  {
+   "value": "gloss_green",
+   "finish_type": "powder",
+   "color": "Gloss Green",
+   "color_group": "Green",
+   "code": "Tiger Drylac 149/52900 RAL 6001 90%"
+  },
+  {
+   "value": "gloss_blue_pow",
+   "finish_type": "powder",
+   "color": "Gloss Blue",
+   "color_group": "Blue",
+   "code": "Tiger Drylac 149/42280 RAL 5010 90% "
+  },
+  {
+   "value": "grey_metallic_pow",
+   "finish_type": "powder",
+   "color": "Metallic Grey",
+   "color_group": "Grey",
+   "code": "Tiger Drylac 149/95726 RAL 9007 90%"
+  },
+  {
+   "value": "grey_pow",
+   "finish_type": "powder",
+   "color": "Gloss Grey",
+   "color_group": "Grey",
+   "code": "Tiger Drylac 138/70046 RAL 7040 90%"
+  },
+  {
+   "value": "texture_black_bk01_pow",
+   "finish_type": "powder",
+   "color": "Textured Black",
+   "color_group": "Black",
+   "code": "Tiger Drylac SD Black Super Tex 059/81073 50%"
+  },
+  {
+   "value": "matte_white_pow",
+   "finish_type": "powder",
+   "color": "Matte White",
+   "color_group": "White",
+   "code": "Cardinal T002-WH08 20% "
+  },
+  {
+   "value": "textured_gray_pow",
+   "finish_type": "powder",
+   "color": "Textured Grey",
+   "color_group": "Grey",
+   "code": "Tiger Drylac Tuscan Silver 138/90030 "
+  },
+  {
+   "value": "safety_orange_pow",
+   "finish_type": "powder",
+   "color": "Safety Orange",
+   "color_group": "Orange",
+   "code": "Tiger Drylac Safety Orange 139/20010 90%"
+  },
+  {
+   "value": "bronze_pow",
+   "finish_type": "powder",
+   "color": "Bronze",
+   "color_group": "Bronze",
+   "code": "Tiger Drylac Medium Bronze 061/68002 25%"
+  }
+ ]
+}

@@ -1,0 +1,277 @@
+{
+ "data": [
+  {
+   "id": 23,
+   "drill": 0.06,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "1-64"
+  },
+  {
+   "id": 24,
+   "drill": 0.061,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "1-72"
+  },
+  {
+   "id": 25,
+   "drill": 0.071,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "2-56"
+  },
+  {
+   "id": 2,
+   "drill": 0.091,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "4-40"
+  },
+  {
+   "id": 3,
+   "drill": 0.112,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "6-32"
+  },
+  {
+   "id": 5,
+   "drill": 0.138,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "8-32"
+  },
+  {
+   "id": 26,
+   "drill": 0.155,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "10-24"
+  },
+  {
+   "id": 1,
+   "drill": 0.164,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "10-32"
+  },
+  {
+   "id": 27,
+   "drill": 0.181,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "12-24"
+  },
+  {
+   "id": 6,
+   "drill": 0.209,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "1/4-20"
+  },
+  {
+   "id": 7,
+   "drill": 0.221,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "1/4-28"
+  },
+  {
+   "id": 8,
+   "drill": 0.266,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "5/16-18"
+  },
+  {
+   "id": 9,
+   "drill": 0.278,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "5/16-24"
+  },
+  {
+   "id": 10,
+   "drill": 0.323,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "3/8-16"
+  },
+  {
+   "id": 11,
+   "drill": 0.341,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "3/8-24"
+  },
+  {
+   "id": 28,
+   "drill": 0.373,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "7/16-14"
+  },
+  {
+   "id": 29,
+   "drill": 0.396,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "7/16-20"
+  },
+  {
+   "id": 12,
+   "drill": 0.435,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "1/2-13"
+  },
+  {
+   "id": 13,
+   "drill": 0.459,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "1/2-20"
+  },
+  {
+   "id": 30,
+   "drill": 0.493,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "9/16-12"
+  },
+  {
+   "id": 31,
+   "drill": 0.516,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "9/16-18"
+  },
+  {
+   "id": 32,
+   "drill": 0.548,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "5/8-11"
+  },
+  {
+   "id": 33,
+   "drill": 0.578,
+   "measurement_system": "Imperial",
+   "deleted": false,
+   "tap": "5/8-18"
+  },
+  {
+   "id": 14,
+   "drill": 0.065,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M2 x 0.4"
+  },
+  {
+   "id": 15,
+   "drill": 0.083,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M2.5 x 0.45"
+  },
+  {
+   "id": 16,
+   "drill": 0.102,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M3 x 0.5"
+  },
+  {
+   "id": 17,
+   "drill": 0.134,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M4 x 0.7"
+  },
+  {
+   "id": 18,
+   "drill": 0.17,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M5 x 0.8"
+  },
+  {
+   "id": 22,
+   "drill": 0.203,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M6 x 1"
+  },
+  {
+   "id": 19,
+   "drill": 0.203,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M6 x 1.0"
+  },
+  {
+   "id": 20,
+   "drill": 0.274,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M8 x 1.25"
+  },
+  {
+   "id": 21,
+   "drill": 0.344,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M10 x 1.5"
+  },
+  {
+   "id": 34,
+   "drill": 0.36,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M10 x 1.0"
+  },
+  {
+   "id": 35,
+   "drill": 0.383,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M11 x 1.5"
+  },
+  {
+   "id": 38,
+   "drill": 0.414,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M12 x 1.75"
+  },
+  {
+   "id": 37,
+   "drill": 0.423,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M12 x 1.5"
+  },
+  {
+   "id": 36,
+   "drill": 0.439,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M12 x 1.0"
+  },
+  {
+   "id": 39,
+   "drill": 0.492,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M14 x 2.0"
+  },
+  {
+   "id": 4,
+   "drill": 0.563,
+   "measurement_system": "Metric",
+   "deleted": false,
+   "tap": "M16 x 2.0"
+  }
+ ]
+}
