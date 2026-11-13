@@ -24,6 +24,17 @@
   ],
   packageRules: [
     {
+      description: "No digest pins for flake inputs: flake.lock already pins nixpkgs, and pinning the flake.nix ref fails the whole pin branch",
+      matchManagers: ["nix"],
+      pinDigests: false,
+    },
+    {
+      description: "The Go toolchain comes from nixpkgs (flake.lock); a go/toolchain bump past it breaks the Nix build",
+      matchManagers: ["gomod"],
+      matchDepTypes: ["golang", "toolchain"],
+      enabled: false,
+    },
+    {
       description: "The owner merges Renovate's PRs",
       matchPackageNames: ["*"],
       automerge: false,
