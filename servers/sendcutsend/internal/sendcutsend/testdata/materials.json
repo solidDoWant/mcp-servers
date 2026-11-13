@@ -1,0 +1,177 @@
+{
+ "data": [
+  {
+   "id": 102,
+   "sku": "CRS-030",
+   "name": "A36/1008 Mild Steel",
+   "fullname": "CRS A36/1008 Mild Steel (.030\")",
+   "category": "Steel",
+   "group": "Metals",
+   "form": "sheet",
+   "thickness": ".030",
+   "out_of_stock": false,
+   "operations": [
+    {
+     "operation": "tumbling",
+     "id": 732
+    },
+    {
+     "operation": "etching",
+     "id": 733
+    },
+    {
+     "operation": "powder",
+     "id": 909
+    },
+    {
+     "operation": "plating",
+     "id": 690
+    },
+    {
+     "operation": "bending",
+     "id": 151
+    },
+    {
+     "operation": "dimple_forming",
+     "id": 920
+    }
+   ]
+  },
+  {
+   "id": 22,
+   "sku": "ALU-063",
+   "name": "5052 H32 Aluminum",
+   "fullname": "5052 H32 Aluminum (.063\")",
+   "category": "Aluminum",
+   "group": "Metals",
+   "form": "sheet",
+   "thickness": ".063",
+   "out_of_stock": false,
+   "operations": [
+    {
+     "operation": "tumbling",
+     "id": 693
+    },
+    {
+     "operation": "powder",
+     "id": 445
+    },
+    {
+     "operation": "tapping",
+     "id": 288
+    },
+    {
+     "operation": "engraving",
+     "id": 1110
+    },
+    {
+     "operation": "bending",
+     "id": 135
+    },
+    {
+     "operation": "etching",
+     "id": 694
+    },
+    {
+     "operation": "welding",
+     "id": 1349
+    },
+    {
+     "operation": "deburring",
+     "id": 133
+    },
+    {
+     "operation": "anodizing",
+     "id": 613
+    },
+    {
+     "operation": "hardware",
+     "id": 651
+    },
+    {
+     "operation": "dimple_forming",
+     "id": 865
+    },
+    {
+     "operation": "detabbing",
+     "id": 1504
+    }
+   ]
+  },
+  {
+   "id": 304,
+   "sku": "ABSBLACK-125",
+   "name": "ABS Black",
+   "fullname": "ABS Black (.125\")",
+   "category": "ABS",
+   "group": "Plastics",
+   "form": "sheet",
+   "thickness": ".125",
+   "out_of_stock": false,
+   "operations": [
+    {
+     "operation": "countersinking",
+     "id": 1006
+    },
+    {
+     "operation": "tapping",
+     "id": 1007
+    }
+   ]
+  },
+  {
+   "id": 66,
+   "sku": "SST-500",
+   "name": "Stainless Steel (304 series)",
+   "fullname": "Stainless Steel (304 series) (.500\")",
+   "category": "Stainless Steel",
+   "group": "Metals",
+   "form": "sheet",
+   "thickness": ".500",
+   "out_of_stock": true,
+   "operations": [
+    {
+     "operation": "tapping",
+     "id": 355
+    },
+    {
+     "operation": "powder",
+     "id": 500
+    },
+    {
+     "operation": "deburring",
+     "id": 70
+    },
+    {
+     "operation": "etching",
+     "id": 801
+    },
+    {
+     "operation": "tumbling",
+     "id": 802
+    },
+    {
+     "operation": "hardware",
+     "id": 883
+    }
+   ]
+  },
+  {
+   "id": 628,
+   "sku": "DCOL-RND-125-065",
+   "name": "DOCOL R8 STEEL TUBING",
+   "fullname": "DOCOL R8 STEEL TUBING Round 1.25\" x .065\" Thick Tube",
+   "category": "Steel",
+   "group": "Metals",
+   "form": "tube",
+   "thickness": ".065",
+   "out_of_stock": false,
+   "operations": [
+    {
+     "operation": "etching",
+     "id": 1185
+    }
+   ]
+  }
+ ]
+}

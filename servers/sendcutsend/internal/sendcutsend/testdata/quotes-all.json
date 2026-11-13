@@ -1,0 +1,239 @@
+{
+ "data": [
+  {
+   "material_sku": "ABSBLACK-125",
+   "override": null,
+   "errors": [],
+   "warnings": [],
+   "restricted_operations": {},
+   "review_required": false,
+   "quantity": 10,
+   "discount": 46,
+   "operation_costs": {},
+   "total_cost": "25.1",
+   "total_operation_cost": 0,
+   "unit_cost": "2.51",
+   "unit_tax_basis": "2.51",
+   "discounts": [
+    {
+     "quantity": 1,
+     "discount": 0,
+     "unit_tax_basis": "4.66"
+    },
+    {
+     "quantity": 2,
+     "discount": 30,
+     "unit_tax_basis": "3.26"
+    },
+    {
+     "quantity": 10,
+     "discount": 46,
+     "unit_tax_basis": "2.51"
+    },
+    {
+     "quantity": 50,
+     "discount": 56,
+     "unit_tax_basis": "2.04"
+    },
+    {
+     "quantity": 100,
+     "discount": 62,
+     "unit_tax_basis": "1.78"
+    },
+    {
+     "quantity": 1000,
+     "discount": 69,
+     "unit_tax_basis": "1.43"
+    }
+   ]
+  },
+  {
+   "material_sku": "ALU-063",
+   "override": null,
+   "errors": [],
+   "warnings": [],
+   "restricted_operations": {},
+   "review_required": false,
+   "quantity": 10,
+   "discount": 48,
+   "operation_costs": {},
+   "total_cost": "18.7",
+   "total_operation_cost": 0,
+   "unit_cost": "1.87",
+   "unit_tax_basis": "1.87",
+   "discounts": [
+    {
+     "quantity": 1,
+     "discount": 0,
+     "unit_tax_basis": "3.63"
+    },
+    {
+     "quantity": 2,
+     "discount": 20,
+     "unit_tax_basis": "2.9"
+    },
+    {
+     "quantity": 10,
+     "discount": 48,
+     "unit_tax_basis": "1.87"
+    },
+    {
+     "quantity": 50,
+     "discount": 66,
+     "unit_tax_basis": "1.25"
+    },
+    {
+     "quantity": 100,
+     "discount": 71,
+     "unit_tax_basis": "1.05"
+    },
+    {
+     "quantity": 1000,
+     "discount": 76,
+     "unit_tax_basis": "0.86"
+    }
+   ]
+  },
+  {
+   "material_sku": "CRS-030",
+   "override": null,
+   "errors": [],
+   "warnings": [],
+   "restricted_operations": {},
+   "review_required": false,
+   "quantity": 10,
+   "discount": 40,
+   "operation_costs": {},
+   "total_cost": "17.1",
+   "total_operation_cost": 0,
+   "unit_cost": "1.71",
+   "unit_tax_basis": "1.71",
+   "discounts": [
+    {
+     "quantity": 1,
+     "discount": 0,
+     "unit_tax_basis": "2.83"
+    },
+    {
+     "quantity": 2,
+     "discount": 21,
+     "unit_tax_basis": "2.24"
+    },
+    {
+     "quantity": 10,
+     "discount": 40,
+     "unit_tax_basis": "1.71"
+    },
+    {
+     "quantity": 50,
+     "discount": 62,
+     "unit_tax_basis": "1.08"
+    },
+    {
+     "quantity": 100,
+     "discount": 63,
+     "unit_tax_basis": "1.04"
+    },
+    {
+     "quantity": 1000,
+     "discount": 75,
+     "unit_tax_basis": "0.72"
+    }
+   ]
+  },
+  {
+   "material_sku": "DCOL-RND-125-065",
+   "override": null,
+   "errors": [
+    {
+     "code": "tube_self_order_disabled_hard"
+    }
+   ],
+   "warnings": [],
+   "restricted_operations": {},
+   "review_required": false,
+   "quantity": 10,
+   "discount": 0,
+   "operation_costs": {},
+   "total_cost": 0,
+   "total_operation_cost": 0,
+   "unit_cost": 0,
+   "unit_tax_basis": 0,
+   "discounts": []
+  },
+  {
+   "material_sku": "SST-500",
+   "override": null,
+   "errors": [],
+   "warnings": [],
+   "restricted_operations": {},
+   "review_required": false,
+   "quantity": 10,
+   "discount": 42,
+   "operation_costs": {},
+   "total_cost": "186.5",
+   "total_operation_cost": 0,
+   "unit_cost": "18.65",
+   "unit_tax_basis": "18.65",
+   "discounts": [
+    {
+     "quantity": 1,
+     "discount": 0,
+     "unit_tax_basis": "32.42"
+    },
+    {
+     "quantity": 2,
+     "discount": 27,
+     "unit_tax_basis": "23.61"
+    },
+    {
+     "quantity": 10,
+     "discount": 42,
+     "unit_tax_basis": "18.65"
+    },
+    {
+     "quantity": 50,
+     "discount": 50,
+     "unit_tax_basis": "16.21"
+    },
+    {
+     "quantity": 100,
+     "discount": 52,
+     "unit_tax_basis": "15.63"
+    },
+    {
+     "quantity": 1000,
+     "discount": 57,
+     "unit_tax_basis": "14.03"
+    }
+   ]
+  },
+  {
+   "material_sku": "ALU6061-625",
+   "override": null,
+   "errors": [
+    {
+     "code": "min_length_short_side_hard",
+     "limit": "2.99",
+     "check": "2.0",
+     "units": "in"
+    }
+   ],
+   "warnings": [],
+   "restricted_operations": {},
+   "review_required": false,
+   "quantity": 10,
+   "discount": 0,
+   "operation_costs": {},
+   "total_cost": 0,
+   "total_operation_cost": 0,
+   "unit_cost": 0,
+   "unit_tax_basis": 0,
+   "discounts": []
+  }
+ ],
+ "meta": {
+  "est_ship_date": null,
+  "in_hand_date": null
+ }
+}

@@ -1,0 +1,1306 @@
+[
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": false,
+      "title": "Create a SendCutSend part"
+    },
+    "description": "Add a part to the SendCutSend account from a file and wait for the site to process it. Pass either dxf_text (the content of a DXF file, up to 1 MiB) or upload_url (from get_upload_url, after uploading). Returns the part's ID for quote_part and create_saved_cart, its measured size, and any problems that stop it being priced. If processing takes longer than the wait, the part comes back with processed=false: call get_part later.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "dxf_text": {
+          "description": "the whole content of a DXF file",
+          "type": "string"
+        },
+        "filename": {
+          "description": "the part's file name, shown on the website; with dxf_text it must end in .dxf",
+          "type": "string"
+        },
+        "units": {
+          "description": "the drawing's units: in or mm; leave empty to let SendCutSend detect them",
+          "type": "string"
+        },
+        "upload_url": {
+          "description": "the upload_url from get_upload_url, after the file was PUT to it",
+          "type": "string"
+        }
+      },
+      "required": [
+        "filename"
+      ],
+      "type": "object"
+    },
+    "name": "create_part",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "area": {
+          "description": "in the part's units, squared",
+          "type": "number"
+        },
+        "contours": {
+          "description": "closed outlines found, the outer edge included",
+          "type": "integer"
+        },
+        "created": {
+          "type": "string"
+        },
+        "errors": {
+          "description": "problems that stop the part being priced",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "format": {
+          "description": "what SendCutSend thinks it is: sheet, tube and so on",
+          "type": "string"
+        },
+        "height": {
+          "description": "in the part's units",
+          "type": "number"
+        },
+        "id": {
+          "description": "the part ID quote_part and create_saved_cart take",
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "possible_formats": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "preview_url": {
+          "description": "an image of the part as SendCutSend sees it",
+          "type": "string"
+        },
+        "processed": {
+          "description": "false while SendCutSend is still processing the file; call get_part again later",
+          "type": "boolean"
+        },
+        "quotable": {
+          "description": "whether the part can be priced: processed and without errors",
+          "type": "boolean"
+        },
+        "state": {
+          "type": "string"
+        },
+        "units": {
+          "type": "string"
+        },
+        "warnings": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "width": {
+          "description": "in the part's units",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "processed",
+        "state",
+        "quotable",
+        "width",
+        "height",
+        "area",
+        "contours"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": false,
+      "title": "Create a SendCutSend saved cart"
+    },
+    "description": "Create a saved cart on the SendCutSend account holding cut-only parts, and return a checkout_url. Give the user the checkout_url: opening it while signed in loads the parts into their cart to review and pay. Nothing is ordered or paid here. The account's own cart must be empty, because SendCutSend builds a saved cart from everything in it; this tool adds its parts, saves, and takes them out again. A saved cart can't be changed afterwards; create another and delete the old one instead.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "description": "1 to 25 lines",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "material_sku": {
+                "description": "a SKU from list_materials or quote_part",
+                "type": "string"
+              },
+              "part_id": {
+                "type": "integer"
+              },
+              "quantity": {
+                "description": "1 to 10000",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "part_id",
+              "material_sku",
+              "quantity"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "title": {
+          "description": "a name for the cart, shown on the website",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "items"
+      ],
+      "type": "object"
+    },
+    "name": "create_saved_cart",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "checkout_url": {
+          "description": "open while signed in to load the cart for checkout",
+          "type": "string"
+        },
+        "created": {
+          "type": "string"
+        },
+        "est_ship_date": {
+          "type": "string"
+        },
+        "id": {
+          "description": "the saved cart's ID",
+          "type": "integer"
+        },
+        "in_hand_date": {
+          "type": "string"
+        },
+        "item_count": {
+          "type": "integer"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "material_sku": {
+                "type": "string"
+              },
+              "part_id": {
+                "type": "integer"
+              },
+              "part_name": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "total_price_usd": {
+                "type": [
+                  "null",
+                  "number"
+                ]
+              },
+              "unit_price_usd": {
+                "type": [
+                  "null",
+                  "number"
+                ]
+              }
+            },
+            "required": [
+              "part_id",
+              "material_sku",
+              "quantity"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "reference": {
+          "description": "SendCutSend's reference number",
+          "type": "string"
+        },
+        "shipping_estimate_usd": {
+          "description": "standard shipping to the account's address; final at checkout",
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "subtotal_usd": {
+          "description": "parts only, when the cart was made",
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "item_count"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": false,
+      "title": "Delete a SendCutSend part"
+    },
+    "description": "Delete a part from the SendCutSend account. Saved carts that already hold it are not changed.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "part_id": {
+          "description": "the part's ID from create_part or list_parts",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "part_id"
+      ],
+      "type": "object"
+    },
+    "name": "delete_part",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "deleted"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": true,
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": false,
+      "title": "Delete a SendCutSend saved cart"
+    },
+    "description": "Delete a saved cart from the SendCutSend account.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "cart_id": {
+          "description": "the saved cart's ID",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "cart_id"
+      ],
+      "type": "object"
+    },
+    "name": "delete_saved_cart",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "deleted": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "deleted"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": true,
+      "title": "Get a SendCutSend part"
+    },
+    "description": "Get one part's details and processing result: size, units, whether it can be priced and the problems found.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "part_id": {
+          "description": "the part's ID from create_part or list_parts",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "part_id"
+      ],
+      "type": "object"
+    },
+    "name": "get_part",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "area": {
+          "description": "in the part's units, squared",
+          "type": "number"
+        },
+        "contours": {
+          "description": "closed outlines found, the outer edge included",
+          "type": "integer"
+        },
+        "created": {
+          "type": "string"
+        },
+        "errors": {
+          "description": "problems that stop the part being priced",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "format": {
+          "description": "what SendCutSend thinks it is: sheet, tube and so on",
+          "type": "string"
+        },
+        "height": {
+          "description": "in the part's units",
+          "type": "number"
+        },
+        "id": {
+          "description": "the part ID quote_part and create_saved_cart take",
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "possible_formats": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "preview_url": {
+          "description": "an image of the part as SendCutSend sees it",
+          "type": "string"
+        },
+        "processed": {
+          "description": "false while SendCutSend is still processing the file; call get_part again later",
+          "type": "boolean"
+        },
+        "quotable": {
+          "description": "whether the part can be priced: processed and without errors",
+          "type": "boolean"
+        },
+        "state": {
+          "type": "string"
+        },
+        "units": {
+          "type": "string"
+        },
+        "warnings": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "width": {
+          "description": "in the part's units",
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "processed",
+        "state",
+        "quotable",
+        "width",
+        "height",
+        "area",
+        "contours"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": true,
+      "title": "Get a SendCutSend saved cart"
+    },
+    "description": "Get one saved cart's parts, materials and quantities. Saved carts don't keep prices; use quote_part for current prices.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "cart_id": {
+          "description": "the saved cart's ID",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "cart_id"
+      ],
+      "type": "object"
+    },
+    "name": "get_saved_cart",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "checkout_url": {
+          "description": "open while signed in to load the cart for checkout",
+          "type": "string"
+        },
+        "created": {
+          "type": "string"
+        },
+        "est_ship_date": {
+          "type": "string"
+        },
+        "id": {
+          "description": "the saved cart's ID",
+          "type": "integer"
+        },
+        "in_hand_date": {
+          "type": "string"
+        },
+        "item_count": {
+          "type": "integer"
+        },
+        "items": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "material_sku": {
+                "type": "string"
+              },
+              "part_id": {
+                "type": "integer"
+              },
+              "part_name": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "integer"
+              },
+              "total_price_usd": {
+                "type": [
+                  "null",
+                  "number"
+                ]
+              },
+              "unit_price_usd": {
+                "type": [
+                  "null",
+                  "number"
+                ]
+              }
+            },
+            "required": [
+              "part_id",
+              "material_sku",
+              "quantity"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "reference": {
+          "description": "SendCutSend's reference number",
+          "type": "string"
+        },
+        "shipping_estimate_usd": {
+          "description": "standard shipping to the account's address; final at checkout",
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "subtotal_usd": {
+          "description": "parts only, when the cart was made",
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "item_count"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructiveHint": false,
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": false,
+      "title": "Get a SendCutSend upload URL"
+    },
+    "description": "Get a pre-signed URL to upload a part file (DXF, DWG, AI, EPS or STEP) to, for files you can't pass to create_part inline. Upload with an HTTP PUT of the raw file, e.g. curl -fsS -T part.step '\u003cupload_url\u003e', within 15 minutes, then call create_part with the same upload_url. Uploaded files are publicly readable by anyone who has the URL.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "filename": {
+          "description": "the file's name with its extension, e.g. bracket.step",
+          "type": "string"
+        }
+      },
+      "required": [
+        "filename"
+      ],
+      "type": "object"
+    },
+    "name": "get_upload_url",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "example": {
+          "description": "a command that uploads the file",
+          "type": "string"
+        },
+        "expires_in": {
+          "type": "string"
+        },
+        "upload_url": {
+          "description": "PUT the file here, then pass this URL to create_part",
+          "type": "string"
+        }
+      },
+      "required": [
+        "upload_url",
+        "expires_in",
+        "example"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": true,
+      "title": "List SendCutSend materials"
+    },
+    "description": "List the materials SendCutSend cuts, with the SKUs quote_part and create_saved_cart take. Filter by category (e.g. Aluminum, Steel, Acrylic), form, service or text. Thickness is in inches.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "description": "only this category, e.g. Aluminum, Stainless Steel, Acrylic (case-insensitive)",
+          "type": "string"
+        },
+        "form": {
+          "description": "only this form: sheet (default) or tube; all for both",
+          "type": "string"
+        },
+        "in_stock_only": {
+          "description": "leave out materials that are out of stock",
+          "type": "boolean"
+        },
+        "limit": {
+          "description": "at most this many, 1 to 250 (default 50)",
+          "type": "integer"
+        },
+        "query": {
+          "description": "only materials whose name or SKU contains this text",
+          "type": "string"
+        },
+        "service": {
+          "description": "only materials offering this service, e.g. bending, tapping, powder",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "name": "list_materials",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "categories": {
+          "description": "every category, for the category filter",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "materials": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "category": {
+                "type": "string"
+              },
+              "form": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "out_of_stock": {
+                "type": "boolean"
+              },
+              "services": {
+                "items": {
+                  "type": "string"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "sku": {
+                "type": "string"
+              },
+              "thickness_in": {
+                "description": "thickness in inches",
+                "type": "string"
+              }
+            },
+            "required": [
+              "sku",
+              "name",
+              "category",
+              "form",
+              "thickness_in"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "total": {
+          "description": "how many materials match before the limit",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "categories",
+        "materials"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": true,
+      "title": "List SendCutSend parts"
+    },
+    "description": "List the parts on the SendCutSend account, newest first.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "limit": {
+          "description": "results per page, 1 to 100 (default 20)",
+          "type": "integer"
+        },
+        "page": {
+          "description": "page number, from 1 (default 1)",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "name": "list_parts",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "page": {
+          "type": "integer"
+        },
+        "parts": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "area": {
+                "description": "in the part's units, squared",
+                "type": "number"
+              },
+              "contours": {
+                "description": "closed outlines found, the outer edge included",
+                "type": "integer"
+              },
+              "created": {
+                "type": "string"
+              },
+              "errors": {
+                "description": "problems that stop the part being priced",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ],
+                  "type": "object"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "format": {
+                "description": "what SendCutSend thinks it is: sheet, tube and so on",
+                "type": "string"
+              },
+              "height": {
+                "description": "in the part's units",
+                "type": "number"
+              },
+              "id": {
+                "description": "the part ID quote_part and create_saved_cart take",
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "possible_formats": {
+                "items": {
+                  "type": "string"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "preview_url": {
+                "description": "an image of the part as SendCutSend sees it",
+                "type": "string"
+              },
+              "processed": {
+                "description": "false while SendCutSend is still processing the file; call get_part again later",
+                "type": "boolean"
+              },
+              "quotable": {
+                "description": "whether the part can be priced: processed and without errors",
+                "type": "boolean"
+              },
+              "state": {
+                "type": "string"
+              },
+              "units": {
+                "type": "string"
+              },
+              "warnings": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ],
+                  "type": "object"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "width": {
+                "description": "in the part's units",
+                "type": "number"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "processed",
+              "state",
+              "quotable",
+              "width",
+              "height",
+              "area",
+              "contours"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "total": {
+          "description": "parts on the account",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "page",
+        "parts"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": true,
+      "title": "List SendCutSend saved carts"
+    },
+    "description": "List the account's saved carts, newest first, with their checkout URLs.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "limit": {
+          "description": "results per page, 1 to 100 (default 20)",
+          "type": "integer"
+        },
+        "page": {
+          "description": "page number, from 1 (default 1)",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "name": "list_saved_carts",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "carts": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "checkout_url": {
+                "description": "open while signed in to load the cart for checkout",
+                "type": "string"
+              },
+              "created": {
+                "type": "string"
+              },
+              "est_ship_date": {
+                "type": "string"
+              },
+              "id": {
+                "description": "the saved cart's ID",
+                "type": "integer"
+              },
+              "in_hand_date": {
+                "type": "string"
+              },
+              "item_count": {
+                "type": "integer"
+              },
+              "items": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "material_sku": {
+                      "type": "string"
+                    },
+                    "part_id": {
+                      "type": "integer"
+                    },
+                    "part_name": {
+                      "type": "string"
+                    },
+                    "quantity": {
+                      "type": "integer"
+                    },
+                    "total_price_usd": {
+                      "type": [
+                        "null",
+                        "number"
+                      ]
+                    },
+                    "unit_price_usd": {
+                      "type": [
+                        "null",
+                        "number"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "part_id",
+                    "material_sku",
+                    "quantity"
+                  ],
+                  "type": "object"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "reference": {
+                "description": "SendCutSend's reference number",
+                "type": "string"
+              },
+              "shipping_estimate_usd": {
+                "description": "standard shipping to the account's address; final at checkout",
+                "type": [
+                  "null",
+                  "number"
+                ]
+              },
+              "subtotal_usd": {
+                "description": "parts only, when the cart was made",
+                "type": [
+                  "null",
+                  "number"
+                ]
+              },
+              "title": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "item_count"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "page": {
+          "type": "integer"
+        },
+        "total": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "page",
+        "carts"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": true,
+      "title": "Price a SendCutSend part"
+    },
+    "description": "Price a part for a quantity. Without material_sku, price it in every material that can cut it and list the cheapest first (optionally only one category). With material_sku, price that material only, with price breaks and estimated ship and delivery dates. Prices are in USD for cutting only, before shipping and tax.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "description": "without material_sku: only materials in this category",
+          "type": "string"
+        },
+        "limit": {
+          "description": "without material_sku: at most this many materials, 1 to 100 (default 15)",
+          "type": "integer"
+        },
+        "material_sku": {
+          "description": "price only this material (a SKU from list_materials), with delivery dates",
+          "type": "string"
+        },
+        "part_id": {
+          "description": "the part's ID",
+          "type": "integer"
+        },
+        "quantity": {
+          "description": "how many to make, 1 to 10000",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "part_id",
+        "quantity"
+      ],
+      "type": "object"
+    },
+    "name": "quote_part",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "part_id": {
+          "type": "integer"
+        },
+        "quantity": {
+          "type": "integer"
+        },
+        "quotable": {
+          "description": "materials that can make the part (before the category filter and limit)",
+          "type": "integer"
+        },
+        "quotes": {
+          "description": "cheapest first",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "category": {
+                "type": "string"
+              },
+              "discount_pct": {
+                "description": "quantity discount already in the price",
+                "type": "number"
+              },
+              "errors": {
+                "description": "why this material can't make the part",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ],
+                  "type": "object"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "est_ship_date": {
+                "type": "string"
+              },
+              "in_hand_date": {
+                "description": "estimated delivery with standard shipping",
+                "type": "string"
+              },
+              "material": {
+                "type": "string"
+              },
+              "material_sku": {
+                "type": "string"
+              },
+              "out_of_stock": {
+                "type": "boolean"
+              },
+              "price_breaks": {
+                "description": "unit price from each quantity up",
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "discount_pct": {
+                      "type": "number"
+                    },
+                    "quantity": {
+                      "type": "integer"
+                    },
+                    "unit_price_usd": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "quantity",
+                    "unit_price_usd",
+                    "discount_pct"
+                  ],
+                  "type": "object"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "review_required": {
+                "description": "SendCutSend staff review the part before cutting",
+                "type": "boolean"
+              },
+              "thickness_in": {
+                "type": "string"
+              },
+              "total_price_usd": {
+                "type": "number"
+              },
+              "unit_price_usd": {
+                "type": "number"
+              },
+              "warnings": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code"
+                  ],
+                  "type": "object"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              }
+            },
+            "required": [
+              "material_sku",
+              "material",
+              "category",
+              "thickness_in",
+              "unit_price_usd",
+              "total_price_usd",
+              "discount_pct"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "unavailable": {
+          "description": "why the other materials can't, by reason",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "materials": {
+                "type": "integer"
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "reason",
+              "materials"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      },
+      "required": [
+        "part_id",
+        "quantity",
+        "quotes",
+        "quotable"
+      ],
+      "type": "object"
+    }
+  }
+]

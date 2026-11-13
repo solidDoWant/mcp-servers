@@ -1,0 +1,112 @@
+{
+ "data": {
+  "anodizing_config": "",
+  "assembly_cart_item_id": null,
+  "bends": [],
+  "bend_compensation": false,
+  "bend_config": {},
+  "max_tonnage": 0.0,
+  "max_bend_length": 0.0,
+  "machining_tap_config": [],
+  "critical_tolerance_config": [],
+  "csk_config": [],
+  "dimple_config": [],
+  "engraving_config": "",
+  "hardware_config": [],
+  "tap_config": [],
+  "weld_config": [],
+  "welding_note": "",
+  "custom": null,
+  "hole_resize_config": [],
+  "id": 7012869,
+  "item_type": "production",
+  "operations": [],
+  "operation_count": {},
+  "plating_config": "",
+  "powder_config": "",
+  "acknowledgements": [],
+  "preferred_shipping_carrier": "usps",
+  "quantity": 10,
+  "saved_cart_id": null,
+  "total_weight": "0.4934165",
+  "can_order": false,
+  "attachments": [],
+  "customer_product": null,
+  "parent_product_id": null,
+  "configured_preview_urls": null,
+  "drawing": {
+   "customer_filename": "bracket.dxf",
+   "filename": "bracket.dxf",
+   "id": 5001,
+   "units": "in",
+   "width": "2.0",
+   "height": "3.0"
+  },
+  "quote_errors": [
+   {
+    "code": "min_length_short_side_hard"
+   }
+  ],
+  "production_options": [],
+  "material": {
+   "id": 102,
+   "sku": "CRS-030",
+   "name": "A36/1008 Mild Steel",
+   "fullname": "CRS A36/1008 Mild Steel (.030\")",
+   "thickness": ".030",
+   "form": "sheet",
+   "out_of_stock": false
+  },
+  "saved_cart_options": [],
+  "unit_cost": "1.71",
+  "unit_tax_basis": "1.71",
+  "total_cost": "17.1",
+  "operation_costs": {},
+  "review_required": false
+ },
+ "meta": {
+  "totals": {
+   "est_ship_date": "2026-11-17T08:00:00.000Z",
+   "in_hand_date": "2026-11-19T08:00:00.000Z",
+   "discount": "0.0",
+   "expedite": "0.0",
+   "gift": "0.0",
+   "item_count": 1,
+   "review_required": false,
+   "shipping": "15.11",
+   "shipping_threshold": "15.11",
+   "subtotal": "17.1",
+   "tax": "0.0",
+   "tax_line_items": [],
+   "total": "32.21",
+   "deliveries": [
+    {
+     "id": "expedite",
+     "items": [
+      7012869
+     ],
+     "shipping": "15.11",
+     "shipping_threshold": "15.11",
+     "expedite": "0.0",
+     "lead_time_days": 3,
+     "est_ship_date": "2026-11-17T08:00:00.000Z",
+     "in_hand_date": [
+      "2026-11-19T08:00:00.000Z",
+      "2026-11-20T08:00:00.000Z"
+     ],
+     "fastest_lead_time_days": 3,
+     "fastest_est_ship_date": "2026-11-17T08:00:00.000Z",
+     "fastest_in_hand_date": [
+      "2026-11-18T08:00:00.000Z"
+     ],
+     "production_method": "standard",
+     "shipping_method": "standard",
+     "review_required": false,
+     "subtotal": "17.1",
+     "total": "17.1",
+     "type": "domestic"
+    }
+   ]
+  }
+ }
+}
