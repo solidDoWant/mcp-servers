@@ -12,6 +12,8 @@ Search electronic component distributors and compare offers: [DigiKey](https://w
 
 A source that fails, or has spent its budget, is listed under `errors` while the others still answer. A call fails only when every source it asked fails.
 
+Offers are grouped by manufacturer part number. Generic parts are often made by several companies under one number (an AMS1117-3.3 from UMW, EVVO and others); they stay in one group, since they're usually drop-in substitutes, but the group then lists every maker under `manufacturers` rather than one `manufacturer`, and each offer and the best offer name their own. JLCPCB offers name no maker.
+
 For JLCPCB assembly, *basic* parts carry no per-part setup fee and *extended* parts do. Each JLCPCB offer says which it is, and `jlc_basic_only` finds basic parts only.
 
 ## Sources

@@ -1,6 +1,7 @@
 package electroniccomponents
 
 import (
+	"io"
 	"net/http"
 	"path/filepath"
 	"testing"
@@ -93,6 +94,39 @@ func TestSearchParts(t *testing.T) {
 		got = search(t, f.config(), map[string]any{"query": "STM32F103C8T6", "quantity": 2000, "sources": []string{"digikey", "mouser"}})
 		assert.Equal(t, "digikey", got.Parts[0].Best.Source, "Mouser has only 1890")
 		assert.InDelta(t, 9900.0, got.Parts[0].Best.TotalPrice, 1e-9)
+	})
+
+	t.Run("labels a part number made by several companies with every maker", func(t *testing.T) {
+		f := newFake(t)
+		f.setOverride("POST /products/v4/search/keyword", f.digikey(func(w http.ResponseWriter, _ *http.Request) {
+			_, _ = io.WriteString(w, `{"Products": [
+				{"ManufacturerProductNumber": "AMS1117-3.3", "Manufacturer": {"Name": "UMW"}, "QuantityAvailable": 100,
+				 "ProductVariations": [{"DigiKeyProductNumber": "4518-AMS1117-3.3TR-ND", "StandardPricing": [{"BreakQuantity": 1, "UnitPrice": 0.20}]}]},
+				{"ManufacturerProductNumber": "AMS1117-3.3", "Manufacturer": {"Name": "EVVO"}, "QuantityAvailable": 100,
+				 "ProductVariations": [{"DigiKeyProductNumber": "5272-AMS1117-3.3TR-ND", "StandardPricing": [{"BreakQuantity": 1, "UnitPrice": 0.10}]}]}]}`)
+		}))
+		f.setOverride("POST /api/v1/search/keyword", f.mouser(func(w http.ResponseWriter, _ *http.Request) {
+			_, _ = io.WriteString(w, `{"Errors": [], "SearchResults": {"Parts": [
+				{"ManufacturerPartNumber": "AMS1117-3.3", "Manufacturer": "umw", "MouserPartNumber": "1-AMS", "AvailabilityInStock": "5",
+				 "PriceBreaks": [{"Quantity": 1, "RawPrice": 0.30, "Currency": "USD"}]}]}}`)
+		}))
+
+		got := search(t, f.config(), map[string]any{"query": "AMS1117-3.3", "sources": []string{"digikey", "mouser"}})
+
+		require.Len(t, got.Parts, 1, "clones stay in one group")
+		g := got.Parts[0]
+		assert.Empty(t, g.Manufacturer)
+		assert.Equal(t, []string{"UMW", "EVVO"}, g.Manufacturers, "the same maker spelt differently counts once")
+		assert.Equal(t, "EVVO", g.Best.Manufacturer, "the best offer says whose part it is")
+	})
+
+	t.Run("names a single maker when jlcsearch's offers name none", func(t *testing.T) {
+		f := newFake(t)
+
+		got := search(t, f.config(), map[string]any{"query": "STM32F103C8T6", "sources": []string{"mouser", "jlcpcb"}})
+
+		assert.Equal(t, "STMicroelectronics", got.Parts[0].Manufacturer)
+		assert.Empty(t, got.Parts[0].Manufacturers)
 	})
 
 	t.Run("passes the filters to each source", func(t *testing.T) {
@@ -406,6 +440,13 @@ func TestBudget(t *testing.T) {
 		require.NoError(t, b.Take(func(d time.Duration) error { waited = d; return nil }))
 		assert.Equal(t, 10*time.Second, waited)
 	})
+}
+
+func TestMakerKeyIgnoresCaseSpacingAndPunctuation(t *testing.T) {
+	assert.Equal(t, makerKey("STMicroelectronics"), makerKey("ST Microelectronics"))
+	assert.Equal(t, makerKey("Texas Instruments"), makerKey("TEXAS-INSTRUMENTS"))
+	assert.NotEqual(t, makerKey("Texas Instruments"), makerKey("Microchip"))
+	assert.Empty(t, makerKey(" - "))
 }
 
 func TestStockCount(t *testing.T) {

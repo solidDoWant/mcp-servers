@@ -1,5 +1,9 @@
 # electronic-components changelog
 
+## 0.2.0
+
+- A part number made by several companies, such as a generic AMS1117-3.3, now lists every maker under `manufacturers` instead of naming the first one as `manufacturer`, and the best offer says whose part it is. Makers' names are compared ignoring case and punctuation.
+
 ## 0.1.0
 
 First release, renamed from `parts` (released once as `parts/v0.1.0`), whose name said too little. Its cache settings are now `CACHE_TTL` and `CACHE_SIZE`.

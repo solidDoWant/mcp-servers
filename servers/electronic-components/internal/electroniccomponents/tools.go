@@ -7,6 +7,7 @@ import (
 	"math"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
@@ -66,20 +67,25 @@ type SearchOutput struct {
 
 // PartGroup is every offer for one manufacturer part number.
 type PartGroup struct {
-	MPN          string     `json:"mpn"`
-	Manufacturer string     `json:"manufacturer,omitempty"`
-	Description  string     `json:"description,omitempty"`
-	Package      string     `json:"package,omitempty"`
-	Best         *BestOffer `json:"best,omitempty" jsonschema:"the cheapest offer at the quantity with enough (or unknown) stock"`
-	Offers       []OfferOut `json:"offers"`
+	MPN          string `json:"mpn"`
+	Manufacturer string `json:"manufacturer,omitempty" jsonschema:"set when every offer that names a maker names this one"`
+	// Generic parts such as AMS1117-3.3 are made by several companies under
+	// one part number. They stay in one group, since they're usually drop-in
+	// substitutes, but the group says so.
+	Manufacturers []string   `json:"manufacturers,omitempty" jsonschema:"the makers, when offers for this part number come from more than one; each offer names its own"`
+	Description   string     `json:"description,omitempty"`
+	Package       string     `json:"package,omitempty"`
+	Best          *BestOffer `json:"best,omitempty" jsonschema:"the cheapest offer at the quantity with enough (or unknown) stock"`
+	Offers        []OfferOut `json:"offers"`
 }
 
 // BestOffer names the cheapest offer.
 type BestOffer struct {
-	Source     string  `json:"source"`
-	UnitPrice  float64 `json:"unit_price"`
-	TotalPrice float64 `json:"total_price"`
-	Currency   string  `json:"currency,omitempty"`
+	Source       string  `json:"source"`
+	Manufacturer string  `json:"manufacturer,omitempty"`
+	UnitPrice    float64 `json:"unit_price"`
+	TotalPrice   float64 `json:"total_price"`
+	Currency     string  `json:"currency,omitempty"`
 }
 
 // OfferOut is an offer as tools return it.
@@ -218,10 +224,6 @@ func group(results []result, qty int) []PartGroup {
 
 			g.Offers = append(g.Offers, outOffer(o, qty, false))
 
-			if g.Manufacturer == "" {
-				g.Manufacturer = o.Manufacturer
-			}
-
 			if g.Description == "" {
 				g.Description = o.Description
 			}
@@ -240,6 +242,7 @@ func group(results []result, qty int) []PartGroup {
 
 	for _, k := range order {
 		g := byKey[k]
+		g.Manufacturer, g.Manufacturers = makers(g.Offers)
 		g.Best = best(g.Offers, qty)
 		groups = append(groups, *g)
 	}
@@ -267,6 +270,44 @@ func outOffer(o Offer, qty int, withSpecs bool) OfferOut {
 	return out
 }
 
+// makers returns the single maker the offers name, or, when they name more
+// than one, each maker once in the order offers name them. Offers that name
+// no maker (jlcsearch's) don't count.
+func makers(offers []OfferOut) (single string, several []string) {
+	seen := map[string]bool{}
+
+	for _, o := range offers {
+		k := makerKey(o.Manufacturer)
+		if k == "" || seen[k] {
+			continue
+		}
+
+		seen[k] = true
+
+		several = append(several, o.Manufacturer)
+	}
+
+	if len(several) == 1 {
+		return several[0], nil
+	}
+
+	return "", several
+}
+
+// makerKey compares makers' names ignoring case, spacing and punctuation, so
+// "STMicroelectronics" matches "ST Microelectronics".
+func makerKey(name string) string {
+	var b strings.Builder
+
+	for _, r := range strings.ToLower(name) {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			b.WriteRune(r)
+		}
+	}
+
+	return b.String()
+}
+
 func best(offers []OfferOut, qty int) *BestOffer {
 	var b *BestOffer
 
@@ -277,7 +318,7 @@ func best(offers []OfferOut, qty int) *BestOffer {
 
 		if b == nil || *o.PriceAtQuantity < b.UnitPrice {
 			b = &BestOffer{
-				Source: o.Source, UnitPrice: *o.PriceAtQuantity, Currency: o.Currency,
+				Source: o.Source, Manufacturer: o.Manufacturer, UnitPrice: *o.PriceAtQuantity, Currency: o.Currency,
 				TotalPrice: math.Round(*o.PriceAtQuantity*float64(qty)*100) / 100,
 			}
 		}
