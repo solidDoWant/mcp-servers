@@ -1,0 +1,503 @@
+[
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": true,
+      "title": "Look up a component"
+    },
+    "description": "Look up one part by manufacturer part number, or by a distributor's own number (DigiKey 296-1234-ND, Mouser 511-LM317T, LCSC C8734): every enabled source's offer with price breaks and specifications.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "part_number": {
+          "description": "a manufacturer part number, or a DigiKey, Mouser or LCSC number",
+          "type": "string"
+        },
+        "sources": {
+          "description": "only these sources; default all enabled",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      },
+      "required": [
+        "part_number"
+      ],
+      "type": "object"
+    },
+    "name": "get_part",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "errors": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "error": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "error"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "offers": {
+          "description": "empty when no source carries the part",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "currency": {
+                "type": "string"
+              },
+              "datasheet_url": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "distributor_pn": {
+                "type": "string"
+              },
+              "jlc_basic": {
+                "type": [
+                  "null",
+                  "boolean"
+                ]
+              },
+              "jlc_preferred": {
+                "type": [
+                  "null",
+                  "boolean"
+                ]
+              },
+              "lifecycle": {
+                "type": "string"
+              },
+              "manufacturer": {
+                "type": "string"
+              },
+              "min_order_qty": {
+                "type": "integer"
+              },
+              "mpn": {
+                "type": "string"
+              },
+              "package": {
+                "type": "string"
+              },
+              "price_at_quantity": {
+                "description": "unit price at the requested quantity",
+                "type": [
+                  "null",
+                  "number"
+                ]
+              },
+              "price_breaks": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "quantity": {
+                      "type": "integer"
+                    },
+                    "unit_price": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "quantity",
+                    "unit_price"
+                  ],
+                  "type": "object"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "product_url": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "specs": {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              "stock": {
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              }
+            },
+            "required": [
+              "source",
+              "mpn"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "part_number": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "part_number",
+        "offers"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": true,
+      "title": "List component sources"
+    },
+    "description": "List the sources: which are enabled (and why not), and how much of each one's daily call budget is used.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "name": "list_sources",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "cache_entries": {
+          "type": "integer"
+        },
+        "cache_ttl": {
+          "description": "how long answers are reused",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "calls_today": {
+                "type": "integer"
+              },
+              "daily_limit": {
+                "description": "0 means no daily limit",
+                "type": "integer"
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "reason": {
+                "description": "why it's disabled",
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "enabled"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      },
+      "required": [
+        "sources",
+        "cache_entries",
+        "cache_ttl"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": true,
+      "readOnlyHint": true,
+      "title": "Search component distributors"
+    },
+    "description": "Search enabled distributors (DigiKey, Mouser, JLCPCB parts library) for components by keyword or part number, e.g. 'STM32F103C8T6', '10k 0603 resistor', 'USB-C receptacle'. Offers for the same manufacturer part number are grouped, with the cheapest offer at the given quantity that has enough stock. A source that fails is listed under errors while the others still answer.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "in_stock_only": {
+          "description": "leave out parts with no stock",
+          "type": "boolean"
+        },
+        "jlc_basic_only": {
+          "description": "JLCPCB only: basic parts, which carry no assembly setup fee",
+          "type": "boolean"
+        },
+        "limit": {
+          "description": "results per source, 1 to 50 (default 10)",
+          "type": "integer"
+        },
+        "quantity": {
+          "description": "how many you need, for the price comparison (default 1)",
+          "type": "integer"
+        },
+        "query": {
+          "description": "keywords or a part number",
+          "type": "string"
+        },
+        "sources": {
+          "description": "only these sources: digikey, mouser, jlcpcb; default all enabled",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "type": "object"
+    },
+    "name": "search_parts",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "errors": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "error": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "error"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "from_cache": {
+          "description": "sources answered from the cache, up to the cache age old",
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "parts": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "best": {
+                "additionalProperties": false,
+                "description": "the cheapest offer at the quantity with enough (or unknown) stock",
+                "properties": {
+                  "currency": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "total_price": {
+                    "type": "number"
+                  },
+                  "unit_price": {
+                    "type": "number"
+                  }
+                },
+                "required": [
+                  "source",
+                  "unit_price",
+                  "total_price"
+                ],
+                "type": [
+                  "null",
+                  "object"
+                ]
+              },
+              "description": {
+                "type": "string"
+              },
+              "manufacturer": {
+                "type": "string"
+              },
+              "mpn": {
+                "type": "string"
+              },
+              "offers": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "currency": {
+                      "type": "string"
+                    },
+                    "datasheet_url": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "distributor_pn": {
+                      "type": "string"
+                    },
+                    "jlc_basic": {
+                      "type": [
+                        "null",
+                        "boolean"
+                      ]
+                    },
+                    "jlc_preferred": {
+                      "type": [
+                        "null",
+                        "boolean"
+                      ]
+                    },
+                    "lifecycle": {
+                      "type": "string"
+                    },
+                    "manufacturer": {
+                      "type": "string"
+                    },
+                    "min_order_qty": {
+                      "type": "integer"
+                    },
+                    "mpn": {
+                      "type": "string"
+                    },
+                    "package": {
+                      "type": "string"
+                    },
+                    "price_at_quantity": {
+                      "description": "unit price at the requested quantity",
+                      "type": [
+                        "null",
+                        "number"
+                      ]
+                    },
+                    "price_breaks": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "quantity": {
+                            "type": "integer"
+                          },
+                          "unit_price": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "quantity",
+                          "unit_price"
+                        ],
+                        "type": "object"
+                      },
+                      "type": [
+                        "null",
+                        "array"
+                      ]
+                    },
+                    "product_url": {
+                      "type": "string"
+                    },
+                    "source": {
+                      "type": "string"
+                    },
+                    "specs": {
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "type": "object"
+                    },
+                    "stock": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "source",
+                    "mpn"
+                  ],
+                  "type": "object"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "package": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "mpn",
+              "offers"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "quantity": {
+          "type": "integer"
+        },
+        "query": {
+          "type": "string"
+        },
+        "sources_searched": {
+          "items": {
+            "type": "string"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        }
+      },
+      "required": [
+        "query",
+        "quantity",
+        "sources_searched",
+        "parts"
+      ],
+      "type": "object"
+    }
+  }
+]

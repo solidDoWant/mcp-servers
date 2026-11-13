@@ -1,0 +1,60 @@
+{
+ "Errors": [],
+ "SearchResults": {
+  "NumberOfResult": 1,
+  "Parts": [
+   {
+    "Availability": "1,890 In Stock",
+    "AvailabilityInStock": "1890",
+    "DataSheetUrl": "https://www.mouser.com/datasheet/2/389/stm32f103c8t6.pdf",
+    "Description": "ARM Microcontrollers - MCU 32BIT Cortex M3 64K FLASH 20K SRAM",
+    "FactoryStock": "0",
+    "ImagePath": "",
+    "Category": "ARM Microcontrollers - MCU",
+    "LeadTime": "84 Days",
+    "LifecycleStatus": null,
+    "Manufacturer": "STMicroelectronics",
+    "ManufacturerPartNumber": "STM32F103C8T6",
+    "Min": "1",
+    "Mult": "1",
+    "MouserPartNumber": "511-STM32F103C8T6",
+    "ProductAttributes": [
+     {
+      "AttributeName": "Packaging",
+      "AttributeValue": "Tray",
+      "AttributeCost": ""
+     },
+     {
+      "AttributeName": "Package / Case",
+      "AttributeValue": "LQFP-48",
+      "AttributeCost": ""
+     }
+    ],
+    "PriceBreaks": [
+     {
+      "Quantity": 1,
+      "Price": "$6.45",
+      "RawPrice": 6.45,
+      "Currency": "USD"
+     },
+     {
+      "Quantity": 10,
+      "Price": "$5.81",
+      "RawPrice": 5.81,
+      "Currency": "USD"
+     },
+     {
+      "Quantity": 100,
+      "Price": "$4.79",
+      "RawPrice": 4.79,
+      "Currency": "USD"
+     }
+    ],
+    "AlternatePackagings": null,
+    "ProductDetailUrl": "https://www.mouser.com/ProductDetail/STMicroelectronics/STM32F103C8T6?qs=abc",
+    "Reeling": false,
+    "ROHSStatus": "RoHS Compliant"
+   }
+  ]
+ }
+}

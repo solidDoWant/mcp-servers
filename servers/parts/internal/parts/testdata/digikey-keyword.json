@@ -1,0 +1,194 @@
+{
+ "Products": [
+  {
+   "Description": {
+    "ProductDescription": "IC MCU 32BIT 64KB FLASH 48LQFP",
+    "DetailedDescription": "IC MCU 32BIT 64KB FLASH 48LQFP (detailed)"
+   },
+   "Manufacturer": {
+    "Id": 497,
+    "Name": "STMicroelectronics"
+   },
+   "ManufacturerProductNumber": "STM32F103C8T6TR",
+   "UnitPrice": 0,
+   "ProductUrl": "https://www.digikey.com/en/products/detail/stmicroelectronics/STM32F103C8T6TR/1",
+   "DatasheetUrl": "//www.st.com/resource/en/datasheet/stm32f103c8t6tr.pdf",
+   "PhotoUrl": "",
+   "ProductVariations": [
+    {
+     "DigiKeyProductNumber": "497-STM32F103C8T6TRCT-ND",
+     "PackageType": {
+      "Id": 1,
+      "Name": "Cut Tape (CT)"
+     },
+     "StandardPricing": [
+      {
+       "BreakQuantity": 1,
+       "UnitPrice": 7.2,
+       "TotalPrice": 7.2
+      }
+     ],
+     "MyPricing": [],
+     "MarketPlace": false,
+     "TariffActive": false,
+     "QuantityAvailableforPackageType": 0,
+     "MaxQuantityForDistribution": 0,
+     "MinimumOrderQuantity": 1,
+     "StandardPackage": 250,
+     "DigiReelFee": 0
+    }
+   ],
+   "QuantityAvailable": 0,
+   "ProductStatus": {
+    "Id": 0,
+    "Status": "Active"
+   },
+   "BackOrderNotAllowed": false,
+   "NormallyStocking": true,
+   "Discontinued": false,
+   "EndOfLife": false,
+   "Ncnr": false,
+   "Parameters": [
+    {
+     "ParameterId": 16,
+     "ParameterText": "Package / Case",
+     "ParameterType": "String",
+     "ValueId": "1",
+     "ValueText": "48-LQFP"
+    }
+   ],
+   "ManufacturerLeadWeeks": "12",
+   "ManufacturerPublicQuantity": 0
+  }
+ ],
+ "ProductsCount": 2,
+ "ExactMatches": [
+  {
+   "Description": {
+    "ProductDescription": "IC MCU 32BIT 64KB FLASH 48LQFP",
+    "DetailedDescription": "IC MCU 32BIT 64KB FLASH 48LQFP (detailed)"
+   },
+   "Manufacturer": {
+    "Id": 497,
+    "Name": "STMicroelectronics"
+   },
+   "ManufacturerProductNumber": "STM32F103C8T6",
+   "UnitPrice": 0,
+   "ProductUrl": "https://www.digikey.com/en/products/detail/stmicroelectronics/STM32F103C8T6/1",
+   "DatasheetUrl": "//www.st.com/resource/en/datasheet/stm32f103c8t6.pdf",
+   "PhotoUrl": "",
+   "ProductVariations": [
+    {
+     "DigiKeyProductNumber": "497-STM32F103C8T6-MKT",
+     "PackageType": {
+      "Id": 1,
+      "Name": "Tray"
+     },
+     "StandardPricing": [
+      {
+       "BreakQuantity": 1,
+       "UnitPrice": 9.99,
+       "TotalPrice": 9.99
+      }
+     ],
+     "MyPricing": [],
+     "MarketPlace": true,
+     "TariffActive": false,
+     "QuantityAvailableforPackageType": 5,
+     "MaxQuantityForDistribution": 0,
+     "MinimumOrderQuantity": 1,
+     "StandardPackage": 250,
+     "DigiReelFee": 0
+    },
+    {
+     "DigiKeyProductNumber": "497-6063-ND",
+     "PackageType": {
+      "Id": 1,
+      "Name": "Tray"
+     },
+     "StandardPricing": [
+      {
+       "BreakQuantity": 1,
+       "UnitPrice": 6.71,
+       "TotalPrice": 6.71
+      },
+      {
+       "BreakQuantity": 10,
+       "UnitPrice": 6.05,
+       "TotalPrice": 60.5
+      },
+      {
+       "BreakQuantity": 100,
+       "UnitPrice": 4.95,
+       "TotalPrice": 495.0
+      }
+     ],
+     "MyPricing": [],
+     "MarketPlace": false,
+     "TariffActive": false,
+     "QuantityAvailableforPackageType": 3120,
+     "MaxQuantityForDistribution": 0,
+     "MinimumOrderQuantity": 1,
+     "StandardPackage": 250,
+     "DigiReelFee": 0
+    }
+   ],
+   "QuantityAvailable": 3120,
+   "ProductStatus": {
+    "Id": 0,
+    "Status": "Active"
+   },
+   "BackOrderNotAllowed": false,
+   "NormallyStocking": true,
+   "Discontinued": false,
+   "EndOfLife": false,
+   "Ncnr": false,
+   "Parameters": [
+    {
+     "ParameterId": 16,
+     "ParameterText": "Package / Case",
+     "ParameterType": "String",
+     "ValueId": "1",
+     "ValueText": "48-LQFP"
+    },
+    {
+     "ParameterId": 2,
+     "ParameterText": "Core Processor",
+     "ParameterType": "String",
+     "ValueId": "2",
+     "ValueText": "ARM® Cortex®-M3"
+    },
+    {
+     "ParameterId": 3,
+     "ParameterText": "Speed",
+     "ParameterType": "String",
+     "ValueId": "3",
+     "ValueText": "72MHz"
+    },
+    {
+     "ParameterId": 4,
+     "ParameterText": "Program Memory Size",
+     "ParameterType": "String",
+     "ValueId": "4",
+     "ValueText": "64KB (64K x 8)"
+    },
+    {
+     "ParameterId": 5,
+     "ParameterText": "Grade",
+     "ParameterType": "String",
+     "ValueId": "5",
+     "ValueText": "-"
+    }
+   ],
+   "ManufacturerLeadWeeks": "12",
+   "ManufacturerPublicQuantity": 0
+  }
+ ],
+ "FilterOptions": {},
+ "SearchLocaleUsed": {
+  "Site": "US",
+  "Language": "en",
+  "Currency": "USD"
+ },
+ "AppliedParametricFiltersDto": []
+}
