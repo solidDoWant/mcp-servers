@@ -329,6 +329,9 @@
                   "currency": {
                     "type": "string"
                   },
+                  "manufacturer": {
+                    "type": "string"
+                  },
                   "source": {
                     "type": "string"
                   },
@@ -353,7 +356,18 @@
                 "type": "string"
               },
               "manufacturer": {
+                "description": "set when every offer that names a maker names this one",
                 "type": "string"
+              },
+              "manufacturers": {
+                "description": "the makers, when offers for this part number come from more than one; each offer names its own",
+                "items": {
+                  "type": "string"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
               },
               "mpn": {
                 "type": "string"
