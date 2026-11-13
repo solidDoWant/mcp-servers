@@ -5,7 +5,7 @@ Every server in this repository follows these rules, so that each one deploys, r
 ## Shape
 
 - One Go package `main` in `servers/<name>/`, with its logic in `servers/<name>/internal/<name>/`. Code that two servers need goes in `internal/`.
-- `main` calls `mcpserver.Main` and does nothing else. Configuration comes from environment variables, and secrets come from files whose paths are set in environment variables. Never put a secret in a command-line argument.
+- `main` calls `mcpserver.Main` and does nothing else. Configuration comes from environment variables, and secrets come from files whose paths are set in environment variables. The exception is a connection string, such as `CACHE_URL`, which may come straight from an environment variable set from a Secret. Never put a secret in a command-line argument.
 - The image is `ghcr.io/soliddowant/mcp-<name>`. It contains the static binary on distroless, running as a non-root user, so it works with a read-only root filesystem and all capabilities dropped. Builds use `ko`, so a server has no Dockerfile.
 
 ## Protocol
@@ -27,7 +27,7 @@ Every server in this repository follows these rules, so that each one deploys, r
 
 Cache when an upstream has a small quota or is slow, and its answers stay true for a while. Use `internal/cache`, never a home-made cache:
 
-- **Backends.** Memory by default. A shared Redis-protocol server when `CACHE_URL_FILE` names a file holding its `redis://` or `rediss://` URL; answers and daily budgets then survive restarts and are shared by replicas. The package uses standard commands only (GET, SET with PX, INCRBY, EXPIREAT, MULTI/EXEC), so any Redis-compatible server works. Don't rely on one server's extensions.
+- **Backends.** Memory by default. A shared Redis-protocol server when `CACHE_URL` holds its `redis://` or `rediss://` connection string (set it from a Secret when it carries a password), with mutual TLS from `CACHE_TLS_CERT_FILE`, `CACHE_TLS_KEY_FILE` and `CACHE_TLS_CA_FILE`; answers and daily budgets then survive restarts and are shared by replicas. The package uses standard commands only (GET, SET with PX, INCRBY, EXPIREAT, MULTI/EXEC), so any Redis-compatible server works. Don't rely on one server's extensions.
 - **What to cache.** Successful answers only. Give "not found" a short lifetime. Put a schema version in every key, and bump it when the shape of a cached value changes. Keys are hashed, so the store never holds the queries themselves.
 - **Stale answers.** Keep entries past their lifetime (`CACHE_STALE_FOR`), and when the upstream fails, answer with the old entry and say so: its age, that it's stale, and the failure.
 - **Budgets.** Count each upstream's calls per day with the package's budgets, below the upstream's own limits. With a shared store the count is exact across restarts and replicas; without one it resets on restart.
@@ -35,14 +35,18 @@ Cache when an upstream has a small quota or is slow, and its answers stay true f
 
 ### A shared server
 
-Several servers may share one Redis-protocol server. Give each its own ACL user, limited to its key prefix (`CACHE_KEY_PREFIX`, the server's name by default) and channel prefix, with commands that list or count other servers' keys denied:
+Several servers may share one Redis-protocol server. Give each its own ACL user with a password, limited to its key prefix (`CACHE_KEY_PREFIX`, the server's name by default) and channel prefix, with commands that list or count other servers' keys denied, and turn the `default` user off. As an ACL file:
 
 ```
-ACL DELUSER electronic-components
-ACL SETUSER electronic-components on >PASSWORD ~electronic-components:* &electronic-components:* +@all -@dangerous -@admin -scan -randomkey -dbsize
+user default off nopass ~* &* +@all
+user electronic-components on >PASSWORD ~electronic-components:* &electronic-components:* +@all -@dangerous -@admin -scan -randomkey -dbsize
 ```
 
-Delete and recreate a user rather than use the `reset` rule, which some servers (Dragonfly) don't support. Without the extra denies, `SCAN` and `RANDOMKEY` return other servers' key names and `DBSIZE` counts their keys. CI checks this isolation against Valkey and Dragonfly (`internal/cache`, `TestServer…`).
+Keep `default`'s permissions when turning it off: Dragonfly checks the `AUTH` command itself against `default`'s permissions, so `user default off -@all` makes every sign-in fail. A Dragonfly operator still manages the server through its admin port as `default`.
+
+Mutual TLS doesn't replace the ACL users. A client certificate only proves the client may connect; Dragonfly treats every such connection as `default` until it signs in, so on a shared server each service needs both its certificate and its own user.
+
+To change users at runtime, delete and recreate one rather than use the `reset` rule, which Dragonfly doesn't support. Without the extra denies, `SCAN` and `RANDOMKEY` return other servers' key names and `DBSIZE` counts their keys. CI checks this isolation against Valkey and Dragonfly (`internal/cache`, `TestServer…`).
 
 The ACL isolates data, not resources: one server can fill the store's memory and push out another's entries. That's fine for caches, which can always be fetched again.
 

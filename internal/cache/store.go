@@ -9,8 +9,11 @@ package cache
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -143,14 +146,42 @@ type RedisStore struct {
 	client *redis.Client
 }
 
+// TLSFiles names the files for mutual TLS to the server. Client
+// certificates are often short-lived (an hour, renewed by cert-manager), so
+// the certificate and key are read again for every new connection. The CA
+// file is read once, at start-up; a new CA needs a restart.
+type TLSFiles struct {
+	// CertFile and KeyFile are the client certificate and key; set both or
+	// neither.
+	CertFile, KeyFile string
+	// CAFile verifies the server's certificate; empty uses the system's
+	// roots.
+	CAFile string
+}
+
 // NewRedisStore connects to the server at rawURL (redis:// or rediss://,
-// with credentials if needed). It doesn't contact the server until first
-// use, so a server that is down at start-up only makes calls miss.
-func NewRedisStore(rawURL string) (*RedisStore, error) {
+// with an ACL user and password if needed). tlsFiles adds mutual TLS, and
+// needs a rediss:// URL. It doesn't contact the server until first use, so
+// a server that is down at start-up only makes calls miss.
+func NewRedisStore(rawURL string, tlsFiles TLSFiles) (*RedisStore, error) {
 	opts, err := redis.ParseURL(rawURL)
 	if err != nil {
 		// The parse error can quote the URL, password included.
 		return nil, errors.New("the cache URL isn't a valid redis:// or rediss:// URL")
+	}
+
+	if (tlsFiles.CertFile == "") != (tlsFiles.KeyFile == "") {
+		return nil, errors.New("give both a client certificate and its key, or neither")
+	}
+
+	if tlsFiles != (TLSFiles{}) {
+		if opts.TLSConfig == nil {
+			return nil, errors.New("TLS files need a rediss:// cache URL")
+		}
+
+		if err := tlsFiles.apply(opts.TLSConfig); err != nil {
+			return nil, err
+		}
 	}
 
 	opts.DialTimeout = 2 * time.Second
@@ -161,6 +192,50 @@ func NewRedisStore(rawURL string) (*RedisStore, error) {
 	opts.DisableIdentity = true
 
 	return &RedisStore{client: redis.NewClient(opts)}, nil
+}
+
+// apply adds the client certificate and CA to cfg. Both are checked once
+// here, so a mistake fails at start-up rather than on the first call.
+func (f TLSFiles) apply(cfg *tls.Config) error {
+	if f.CertFile != "" {
+		if _, err := tls.LoadX509KeyPair(f.CertFile, f.KeyFile); err != nil {
+			return fmt.Errorf("load the cache client certificate: %w", err)
+		}
+
+		cfg.GetClientCertificate = func(*tls.CertificateRequestInfo) (*tls.Certificate, error) {
+			cert, err := tls.LoadX509KeyPair(f.CertFile, f.KeyFile)
+			if err != nil {
+				return nil, fmt.Errorf("load the cache client certificate: %w", err)
+			}
+
+			return &cert, nil
+		}
+	}
+
+	if f.CAFile != "" {
+		pool, err := loadCAs(f.CAFile)
+		if err != nil {
+			return err
+		}
+
+		cfg.RootCAs = pool
+	}
+
+	return nil
+}
+
+func loadCAs(path string) (*x509.CertPool, error) {
+	pem, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("read the cache CA file: %w", err)
+	}
+
+	pool := x509.NewCertPool()
+	if !pool.AppendCertsFromPEM(pem) {
+		return nil, fmt.Errorf("the cache CA file %s holds no PEM certificates", path)
+	}
+
+	return pool, nil
 }
 
 func (r *RedisStore) Get(ctx context.Context, key string) ([]byte, bool, error) {

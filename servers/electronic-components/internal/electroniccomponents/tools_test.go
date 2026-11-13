@@ -500,7 +500,7 @@ func TestCachedAnswers(t *testing.T) {
 		f := newFake(t)
 		m := miniredis.RunT(t)
 		open := func() Config {
-			store, err := cache.NewRedisStore("redis://" + m.Addr())
+			store, err := cache.NewRedisStore("redis://"+m.Addr(), cache.TLSFiles{})
 			require.NoError(t, err)
 			t.Cleanup(func() { _ = store.Close() })
 

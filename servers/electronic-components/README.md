@@ -35,7 +35,7 @@ The server is meant to run as one shared instance, so everyone shares one day's 
 - When a source fails, an answer up to a day past its lifetime is used instead, marked stale with its age and the failure.
 - `search_parts` and `get_part` list the sources that answered from the cache under `from_cache`, with each answer's age.
 
-By default the cache and the day's counts live in memory and are lost on restart. Set `CACHE_URL_FILE` to keep them in a shared Redis-protocol server instead: they then survive restarts, the daily counts are exact, and replicas share them. See the server contract's [Caching](../../docs/server-contract.md#caching) section for setting up a shared server safely.
+By default the cache and the day's counts live in memory and are lost on restart. Set `CACHE_URL` to keep them in a shared Redis-protocol server instead: they then survive restarts, the daily counts are exact, and replicas share them. See the server contract's [Caching](../../docs/server-contract.md#caching) section for setting up a shared server safely.
 
 ### Keys stay out of output and logs
 
@@ -52,7 +52,9 @@ Mouser takes its key as a URL parameter, and Go's HTTP errors quote the URL. The
 | `DIGIKEY_LOCALE_SITE`, `DIGIKEY_LOCALE_CURRENCY` | `US`, `USD` | DigiKey's prices and stock for this site and currency. |
 | `CACHE_TTL`, `CACHE_SIZE` | `1h`, `1000` | How long answers are reused, and how many the memory cache keeps. A search keeps up to about 50 KB, so 1000 entries stay under about 50 MB. |
 | `CACHE_STALE_FOR` | `24h` | How much longer old answers are kept, to answer with when a source fails. `0` keeps none. |
-| `CACHE_URL_FILE` | none | File holding a `redis://` or `rediss://` URL. Keeps the cache and budgets in that server instead of memory. |
+| `CACHE_URL` | none | A `redis://` or `rediss://` connection string, with an ACL user and password if needed (set it from a Secret). Keeps the cache and budgets in that server instead of memory. |
+| `CACHE_TLS_CERT_FILE`, `CACHE_TLS_KEY_FILE` | none | Client certificate and key for mutual TLS (needs `rediss://`). Read again for every new connection, so short-lived certificates renewed in place keep working. |
+| `CACHE_TLS_CA_FILE` | system roots | CA bundle that verifies the server's certificate. Read at start-up. |
 | `CACHE_KEY_PREFIX` | `electronic-components` | Starts every key in the shared server; its ACL user is limited to it. |
 | `DIGIKEY_DAILY_LIMIT`, `DIGIKEY_PER_MINUTE`, `MOUSER_DAILY_LIMIT`, `MOUSER_PER_MINUTE` | see above | Budgets. A daily limit of `0` means none. |
 | `DIGIKEY_API_URL`, `MOUSER_API_URL`, `JLCSEARCH_URL` | the real services | Upstream addresses. Tests point them at a fake. |
