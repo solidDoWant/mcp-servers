@@ -10,7 +10,7 @@ runs:
       with:
         primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.nix', 'flake.lock') }}
         restore-prefixes-first-match: nix-${{ runner.os }}-
-    - uses: actions/cache@v4
+    - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6
       with:
         path: |
           ~/go/pkg/mod
