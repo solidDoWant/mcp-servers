@@ -23,7 +23,29 @@ Every server in this repository follows these rules, so that each one deploys, r
 - **Descriptions are the interface.** Tool and parameter descriptions are all the model knows about the server. Say what each tool is for, what the IDs it returns are for, and the limits that apply. Mark read-only tools with `ReadOnlyHint`.
 - **Honest upstream identity.** Send a User-Agent naming the server and this repository unless the upstream refuses it.
 
-## Tests
+## Caching
+
+Cache when an upstream has a small quota or is slow, and its answers stay true for a while. Use `internal/cache`, never a home-made cache:
+
+- **Backends.** Memory by default. A shared Redis-protocol server when `CACHE_URL_FILE` names a file holding its `redis://` or `rediss://` URL; answers and daily budgets then survive restarts and are shared by replicas. The package uses standard commands only (GET, SET with PX, INCRBY, EXPIREAT, MULTI/EXEC), so any Redis-compatible server works. Don't rely on one server's extensions.
+- **What to cache.** Successful answers only. Give "not found" a short lifetime. Put a schema version in every key, and bump it when the shape of a cached value changes. Keys are hashed, so the store never holds the queries themselves.
+- **Stale answers.** Keep entries past their lifetime (`CACHE_STALE_FOR`), and when the upstream fails, answer with the old entry and say so: its age, that it's stale, and the failure.
+- **Budgets.** Count each upstream's calls per day with the package's budgets, below the upstream's own limits. With a shared store the count is exact across restarts and replicas; without one it resets on restart.
+- **Say where answers came from.** Tool output says which answers came from the cache, and how old they are.
+
+### A shared server
+
+Several servers may share one Redis-protocol server. Give each its own ACL user, limited to its key prefix (`CACHE_KEY_PREFIX`, the server's name by default) and channel prefix, with commands that list or count other servers' keys denied:
+
+```
+ACL DELUSER electronic-components
+ACL SETUSER electronic-components on >PASSWORD ~electronic-components:* &electronic-components:* +@all -@dangerous -@admin -scan -randomkey -dbsize
+```
+
+Delete and recreate a user rather than use the `reset` rule, which some servers (Dragonfly) don't support. Without the extra denies, `SCAN` and `RANDOMKEY` return other servers' key names and `DBSIZE` counts their keys. CI checks this isolation against Valkey and Dragonfly (`internal/cache`, `TestServer…`).
+
+The ACL isolates data, not resources: one server can fill the store's memory and push out another's entries. That's fine for caches, which can always be fetched again.
+
 
 - **Unit tests** call the tools through a real MCP client (`internal/mcptest`) against a fake upstream (`httptest`) with recorded responses in `testdata/`. They cover the mapping of each field, input validation, and every kind of upstream failure.
 - **A tool-list golden file** (`testdata/tools.golden.json`) holds every tool's name, description and schemas. Any change to what clients see shows up as a diff in review. Rewrite it with `make golden`.

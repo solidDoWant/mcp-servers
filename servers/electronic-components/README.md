@@ -30,10 +30,12 @@ Each source is enabled only when its credentials are set; jlcsearch is enabled u
 
 The server is meant to run as one shared instance, so everyone shares one day's calls. To make them last:
 
-- Answers are cached in memory (1 hour by default) and identical calls in flight share one request. A cache hit costs nothing. `search_parts` lists the sources it answered from the cache.
+- Answers are cached (1 hour by default; an answer with no offers, 10 minutes) and identical calls in flight share one request. A cache hit costs nothing.
 - Each source has a rate and a daily budget below the distributor's own: DigiKey 100 a minute and 950 a day, Mouser 25 a minute and 950 a day. A call that would wait more than 10 seconds for the rate, or comes after the day's budget is spent, fails for that source only. Budgets reset at 00:00 UTC.
+- When a source fails, an answer up to a day past its lifetime is used instead, marked stale with its age and the failure.
+- `search_parts` and `get_part` list the sources that answered from the cache under `from_cache`, with each answer's age.
 
-The cache and the day's counts are lost on restart. That is the only state the server keeps; any replica can answer any request, but each replica has its own cache and budget, so run one.
+By default the cache and the day's counts live in memory and are lost on restart. Set `CACHE_URL_FILE` to keep them in a shared Redis-protocol server instead: they then survive restarts, the daily counts are exact, and replicas share them. See the server contract's [Caching](../../docs/server-contract.md#caching) section for setting up a shared server safely.
 
 ### Keys stay out of output and logs
 
@@ -48,7 +50,10 @@ Mouser takes its key as a URL parameter, and Go's HTTP errors quote the URL. The
 | `MOUSER_API_KEY_FILE` | none | File holding a Mouser Search API key. |
 | `JLCSEARCH_DISABLED` | `false` | Turn jlcsearch off. |
 | `DIGIKEY_LOCALE_SITE`, `DIGIKEY_LOCALE_CURRENCY` | `US`, `USD` | DigiKey's prices and stock for this site and currency. |
-| `CACHE_TTL`, `CACHE_SIZE` | `1h`, `1000` | How long answers are reused, and how many are kept. A search keeps up to about 50 KB, so 1000 entries stay under about 50 MB. |
+| `CACHE_TTL`, `CACHE_SIZE` | `1h`, `1000` | How long answers are reused, and how many the memory cache keeps. A search keeps up to about 50 KB, so 1000 entries stay under about 50 MB. |
+| `CACHE_STALE_FOR` | `24h` | How much longer old answers are kept, to answer with when a source fails. `0` keeps none. |
+| `CACHE_URL_FILE` | none | File holding a `redis://` or `rediss://` URL. Keeps the cache and budgets in that server instead of memory. |
+| `CACHE_KEY_PREFIX` | `electronic-components` | Starts every key in the shared server; its ACL user is limited to it. |
 | `DIGIKEY_DAILY_LIMIT`, `DIGIKEY_PER_MINUTE`, `MOUSER_DAILY_LIMIT`, `MOUSER_PER_MINUTE` | see above | Budgets. A daily limit of `0` means none. |
 | `DIGIKEY_API_URL`, `MOUSER_API_URL`, `JLCSEARCH_URL` | the real services | Upstream addresses. Tests point them at a fake. |
 

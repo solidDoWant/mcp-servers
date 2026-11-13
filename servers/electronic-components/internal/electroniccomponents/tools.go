@@ -60,9 +60,38 @@ type SearchOutput struct {
 	Query           string        `json:"query"`
 	Quantity        int           `json:"quantity"`
 	SourcesSearched []string      `json:"sources_searched"`
-	FromCache       []string      `json:"from_cache,omitempty" jsonschema:"sources answered from the cache, up to the cache age old"`
+	FromCache       []CacheNote   `json:"from_cache,omitempty" jsonschema:"sources answered from the cache rather than asked"`
 	Parts           []PartGroup   `json:"parts"`
 	Errors          []SourceError `json:"errors,omitempty"`
+}
+
+// CacheNote says that one source's answer came from the cache.
+type CacheNote struct {
+	Source     string `json:"source"`
+	AgeSeconds int    `json:"age_seconds" jsonschema:"how long ago the source was asked"`
+	// Stale answers are past their freshness, given because the source
+	// failed just now.
+	Stale bool   `json:"stale,omitempty" jsonschema:"the source failed just now, so this older answer was used"`
+	Error string `json:"error,omitempty" jsonschema:"why the source failed, for a stale answer"`
+}
+
+func cacheNotes(results []result) []CacheNote {
+	var notes []CacheNote
+
+	for _, r := range results {
+		if !r.meta.Hit {
+			continue
+		}
+
+		n := CacheNote{Source: r.source, AgeSeconds: int(r.meta.Age.Seconds()), Stale: r.meta.Stale}
+		if r.meta.FetchErr != nil {
+			n.Error = r.meta.FetchErr.Error()
+		}
+
+		notes = append(notes, n)
+	}
+
+	return notes
 }
 
 // PartGroup is every offer for one manufacturer part number.
@@ -186,11 +215,7 @@ func (s *Service) searchTool(ctx context.Context, _ *mcp.CallToolRequest, in Sea
 
 	out := SearchOutput{Query: query, Quantity: qty, SourcesSearched: names, Errors: errs, Parts: group(results, qty)}
 
-	for _, r := range results {
-		if r.cached {
-			out.FromCache = append(out.FromCache, r.source)
-		}
-	}
+	out.FromCache = cacheNotes(results)
 
 	return nil, out, nil
 }
@@ -337,6 +362,7 @@ type GetPartInput struct {
 type GetPartOutput struct {
 	PartNumber string        `json:"part_number"`
 	Offers     []OfferOut    `json:"offers" jsonschema:"empty when no source carries the part"`
+	FromCache  []CacheNote   `json:"from_cache,omitempty" jsonschema:"sources answered from the cache rather than asked"`
 	Errors     []SourceError `json:"errors,omitempty"`
 }
 
@@ -363,7 +389,7 @@ func (s *Service) getPartTool(ctx context.Context, _ *mcp.CallToolRequest, in Ge
 		return nil, GetPartOutput{}, err
 	}
 
-	out := GetPartOutput{PartNumber: pn, Offers: []OfferOut{}, Errors: errs}
+	out := GetPartOutput{PartNumber: pn, Offers: []OfferOut{}, Errors: errs, FromCache: cacheNotes(results)}
 
 	for _, r := range results {
 		for _, o := range r.offers {
@@ -377,8 +403,9 @@ func (s *Service) getPartTool(ctx context.Context, _ *mcp.CallToolRequest, in Ge
 // SourcesOutput is list_sources' output.
 type SourcesOutput struct {
 	Sources      []SourceInfo `json:"sources"`
-	CacheEntries int          `json:"cache_entries"`
+	CacheBackend string       `json:"cache_backend" jsonschema:"memory (lost on restart) or redis (shared, kept across restarts)"`
 	CacheTTL     string       `json:"cache_ttl" jsonschema:"how long answers are reused"`
+	StaleFor     string       `json:"stale_for,omitempty" jsonschema:"how much longer old answers are kept, to use when a source fails"`
 }
 
 // SourceInfo is one source's state.
@@ -390,15 +417,18 @@ type SourceInfo struct {
 	DailyLimit int    `json:"daily_limit,omitempty" jsonschema:"0 means no daily limit"`
 }
 
-func (s *Service) sourcesTool(_ context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, SourcesOutput, error) {
-	out := SourcesOutput{CacheEntries: s.cache.len(), CacheTTL: s.cacheTTL.Round(time.Second).String()}
+func (s *Service) sourcesTool(ctx context.Context, _ *mcp.CallToolRequest, _ struct{}) (*mcp.CallToolResult, SourcesOutput, error) {
+	out := SourcesOutput{CacheBackend: s.cache.Store().Kind(), CacheTTL: s.cacheTTL.Round(time.Second).String()}
+	if s.staleFor > 0 {
+		out.StaleFor = s.staleFor.Round(time.Second).String()
+	}
 
 	for _, n := range sourceOrder {
 		info := SourceInfo{Source: n}
 
 		if b, ok := s.budgets[n]; ok {
 			info.Enabled = true
-			info.CallsToday, info.DailyLimit = b.Status()
+			info.CallsToday, info.DailyLimit = b.Status(ctx)
 		} else {
 			info.Reason = s.disabled[n]
 		}

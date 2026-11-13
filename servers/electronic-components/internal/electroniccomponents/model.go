@@ -10,8 +10,9 @@ package electroniccomponents
 
 import (
 	"context"
-	"errors"
 	"strings"
+
+	"github.com/solidDoWant/mcp-servers/internal/cache"
 )
 
 // PriceBreak is the unit price from a quantity up.
@@ -74,7 +75,7 @@ type Provider interface {
 }
 
 // ErrBudget means a source's request budget is used up for now.
-var ErrBudget = errors.New("request budget used up")
+var ErrBudget = cache.ErrBudget
 
 // mpnKey is the form of a part number offers are merged on.
 func mpnKey(mpn string) string {

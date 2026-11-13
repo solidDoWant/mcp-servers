@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/solidDoWant/mcp-servers/internal/cache"
 )
 
 // DefaultMouserURL is Mouser's Search API.
@@ -20,7 +22,7 @@ type Mouser struct {
 	base   string
 	apiKey string
 	client *http.Client
-	budget *Budget
+	budget *cache.Budget
 	wait   func(context.Context, time.Duration) error
 }
 
@@ -61,7 +63,7 @@ type mouserResponse struct {
 }
 
 func (m *Mouser) call(ctx context.Context, path string, body any) ([]mouserPart, error) {
-	if err := m.budget.Take(func(d time.Duration) error { return m.wait(ctx, d) }); err != nil {
+	if err := m.budget.Take(ctx, func(d time.Duration) error { return m.wait(ctx, d) }); err != nil {
 		return nil, err
 	}
 
