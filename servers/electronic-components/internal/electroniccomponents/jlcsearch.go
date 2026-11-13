@@ -1,4 +1,4 @@
-package parts
+package electroniccomponents
 
 import (
 	"context"
@@ -47,8 +47,8 @@ func (j *JLCSearch) query(ctx context.Context, params url.Values) ([]jlcComponen
 
 	target := strings.TrimRight(j.base, "/") + "/api/search?" + params.Encode()
 
-	// jlcsearch answers the odd request with a transient 500; one retry is
-	// cheap since it has no quota.
+	// jlcsearch sometimes answers with a transient 500. It has no quota, so
+	// a few tries with a short pause cost little.
 	for attempt := 0; ; attempt++ {
 		if err := j.budget.Take(func(d time.Duration) error { return j.wait(ctx, d) }); err != nil {
 			return nil, err
@@ -57,7 +57,11 @@ func (j *JLCSearch) query(ctx context.Context, params url.Values) ([]jlcComponen
 		err := doJSON(ctx, j.client, "jlcsearch", http.MethodGet, target, nil, nil, &out)
 
 		var he *httpError
-		if attempt == 0 && errors.As(err, &he) && he.status >= 500 {
+		if attempt < len(jlcRetryPauses) && errors.As(err, &he) && he.status >= 500 {
+			if err := j.wait(ctx, jlcRetryPauses[attempt]); err != nil {
+				return nil, err
+			}
+
 			continue
 		}
 
@@ -68,6 +72,9 @@ func (j *JLCSearch) query(ctx context.Context, params url.Values) ([]jlcComponen
 		return out.Components, nil
 	}
 }
+
+// jlcRetryPauses are the pauses before each retry after a server error.
+var jlcRetryPauses = []time.Duration{500 * time.Millisecond, 1500 * time.Millisecond}
 
 func (j *JLCSearch) Search(ctx context.Context, q SearchQuery) ([]Offer, error) {
 	params := url.Values{}

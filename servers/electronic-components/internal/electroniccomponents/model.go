@@ -1,4 +1,4 @@
-// Package parts searches electronic component distributors (DigiKey, Mouser
+// Package electroniccomponents searches electronic component distributors (DigiKey, Mouser
 // and JLCPCB's parts library through jlcsearch) and merges their offers by
 // manufacturer part number, so prices and stock can be compared.
 //
@@ -6,7 +6,7 @@
 // jlcsearch, which needs none. DigiKey and Mouser allow about a thousand
 // calls a day, so responses are cached and every source has a rate limit and
 // a daily budget below the distributor's own.
-package parts
+package electroniccomponents
 
 import (
 	"context"

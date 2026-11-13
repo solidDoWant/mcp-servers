@@ -1,4 +1,4 @@
-package parts
+package electroniccomponents
 
 import (
 	"net/http"
@@ -173,13 +173,13 @@ func TestSearchParts(t *testing.T) {
 		assert.Contains(t, msg, "DigiKey returned HTTP 429 (rate limited; retry in 42s)")
 	})
 
-	t.Run("retries jlcsearch once after a server error", func(t *testing.T) {
+	t.Run("retries jlcsearch after server errors", func(t *testing.T) {
 		f := newFake(t)
-		failed := false
+		failures := 2
 
 		f.setOverride("GET /api/search", func(w http.ResponseWriter, _ *http.Request) {
-			if !failed {
-				failed = true
+			if failures > 0 {
+				failures--
 
 				http.Error(w, "oops", http.StatusInternalServerError)
 
@@ -192,8 +192,20 @@ func TestSearchParts(t *testing.T) {
 		got := search(t, f.config(), map[string]any{"query": "STM32F103C8T6", "sources": []string{"jlcpcb"}})
 
 		assert.Empty(t, got.Errors)
-		assert.Equal(t, 2, f.count("GET /api/search"))
+		assert.Equal(t, 3, f.count("GET /api/search"))
 		assert.Len(t, got.Parts, 3)
+	})
+
+	t.Run("gives up on jlcsearch after three server errors", func(t *testing.T) {
+		f := newFake(t)
+		f.setOverride("GET /api/search", func(w http.ResponseWriter, _ *http.Request) {
+			http.Error(w, "D1 DB is overloaded", http.StatusInternalServerError)
+		})
+
+		msg := errorText(t, connect(t, f.config()), "search_parts", map[string]any{"query": "x", "sources": []string{"jlcpcb"}})
+
+		assert.Contains(t, msg, "jlcsearch returned HTTP 500: D1 DB is overloaded")
+		assert.Equal(t, 3, f.count("GET /api/search"))
 	})
 
 	invalid := []struct {

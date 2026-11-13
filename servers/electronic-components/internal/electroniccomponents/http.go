@@ -1,4 +1,4 @@
-package parts
+package electroniccomponents
 
 import (
 	"bytes"

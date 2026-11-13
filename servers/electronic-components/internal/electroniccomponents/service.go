@@ -1,4 +1,4 @@
-package parts
+package electroniccomponents
 
 import (
 	"context"
@@ -79,7 +79,7 @@ func New(cfg Config) *Service {
 		Timeout: cfg.HTTPClient.Timeout,
 		Transport: &userAgentTransport{
 			base: transportOf(cfg.HTTPClient),
-			ua:   "mcp-servers-parts/" + cfg.Version + " (+https://github.com/solidDoWant/mcp-servers)",
+			ua:   "mcp-servers-electronic-components/" + cfg.Version + " (+https://github.com/solidDoWant/mcp-servers)",
 		},
 	}
 
