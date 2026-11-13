@@ -1,4 +1,4 @@
-# parts
+# electronic-components
 
 Search electronic component distributors and compare offers: [DigiKey](https://www.digikey.com), [Mouser](https://www.mouser.com), and JLCPCB's parts library (the parts JLCPCB stocks for PCB assembly), through [jlcsearch](https://github.com/tscircuit/jlcsearch).
 
@@ -46,7 +46,7 @@ Mouser takes its key as a URL parameter, and Go's HTTP errors quote the URL. The
 | `MOUSER_API_KEY_FILE` | none | File holding a Mouser Search API key. |
 | `JLCSEARCH_DISABLED` | `false` | Turn jlcsearch off. |
 | `DIGIKEY_LOCALE_SITE`, `DIGIKEY_LOCALE_CURRENCY` | `US`, `USD` | DigiKey's prices and stock for this site and currency. |
-| `PARTS_CACHE_TTL`, `PARTS_CACHE_SIZE` | `1h`, `1000` | How long answers are reused, and how many are kept. A search keeps up to about 50 KB, so 1000 entries stay under about 50 MB. |
+| `CACHE_TTL`, `CACHE_SIZE` | `1h`, `1000` | How long answers are reused, and how many are kept. A search keeps up to about 50 KB, so 1000 entries stay under about 50 MB. |
 | `DIGIKEY_DAILY_LIMIT`, `DIGIKEY_PER_MINUTE`, `MOUSER_DAILY_LIMIT`, `MOUSER_PER_MINUTE` | see above | Budgets. A daily limit of `0` means none. |
 | `DIGIKEY_API_URL`, `MOUSER_API_URL`, `JLCSEARCH_URL` | the real services | Upstream addresses. Tests point them at a fake. |
 
@@ -58,6 +58,6 @@ The server needs outbound HTTPS to `api.digikey.com`, `api.mouser.com` and `jlcs
 
 - **DigiKey:** Product Information v4 (`/products/v4/search/keyword` and `/productdetails`), signed in with OAuth client credentials. Each product's offer uses the packaging variation that is priced, in stock and sold by DigiKey rather than its marketplace.
 - **Mouser:** Search API v1 (`/api/v1/search/keyword` and `/partnumber` with exact matching). Mouser reports most failures, a refused key included, in the body of an HTTP 200; they become errors.
-- **jlcsearch:** `/api/search`. It returns only parts in stock, except for an exact LCSC number, whose stock it may not know. It answers the odd request with a transient 500, so the server retries once.
+- **jlcsearch:** `/api/search`. It returns only parts in stock, except for an exact LCSC number, whose stock it may not know. It sometimes answers with a transient 500, so the server tries up to three times, half a second and then a second and a half apart.
 
 The tests' DigiKey and Mouser responses are built from the distributors' published API specifications; jlcsearch's are recorded. The nightly live test (`make test-live`) searches jlcsearch, which needs no key. Set `DIGIKEY_CLIENT_ID_FILE` and `DIGIKEY_CLIENT_SECRET_FILE`, or `MOUSER_API_KEY_FILE`, to also test those sources live.

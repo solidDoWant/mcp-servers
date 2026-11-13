@@ -1,6 +1,6 @@
 //go:build live
 
-package parts
+package electroniccomponents
 
 import (
 	"os"
@@ -20,7 +20,7 @@ func liveSession(t *testing.T, cfg Config) *mcp.ClientSession {
 
 	cfg.Version = "live-test"
 
-	return mcptest.Connect(t, mcpserver.Config{Name: "parts", Version: "test", Register: Tools(New(cfg))})
+	return mcptest.Connect(t, mcpserver.Config{Name: "electronic-components", Version: "test", Register: Tools(New(cfg))})
 }
 
 // jlcsearch needs no key, so this runs in CI without secrets.

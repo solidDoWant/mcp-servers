@@ -1,4 +1,4 @@
-// Command parts serves the parts MCP server: search DigiKey, Mouser and
+// Command electronic-components serves the electronic-components MCP server: search DigiKey, Mouser and
 // JLCPCB's parts library for electronic components and compare offers.
 package main
 
@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/solidDoWant/mcp-servers/internal/mcpserver"
-	"github.com/solidDoWant/mcp-servers/servers/parts/internal/parts"
+	"github.com/solidDoWant/mcp-servers/servers/electronic-components/internal/electroniccomponents"
 )
 
 // version is set at build time.
@@ -26,17 +26,17 @@ func main() {
 	}
 
 	mcpserver.Main(mcpserver.Config{
-		Name:         "parts",
+		Name:         "electronic-components",
 		Version:      version,
-		Instructions: parts.Instructions,
-		Register:     parts.Tools(parts.New(cfg)),
+		Instructions: electroniccomponents.Instructions,
+		Register:     electroniccomponents.Tools(electroniccomponents.New(cfg)),
 	})
 }
 
-func config() (parts.Config, error) {
-	cfg := parts.Config{
+func config() (electroniccomponents.Config, error) {
+	cfg := electroniccomponents.Config{
 		Version: version,
-		DigiKey: parts.DigiKeyConfig{
+		DigiKey: electroniccomponents.DigiKeyConfig{
 			BaseURL:  os.Getenv("DIGIKEY_API_URL"),
 			Site:     os.Getenv("DIGIKEY_LOCALE_SITE"),
 			Currency: os.Getenv("DIGIKEY_LOCALE_CURRENCY"),
@@ -67,23 +67,23 @@ func config() (parts.Config, error) {
 		}
 	}
 
-	if v := os.Getenv("PARTS_CACHE_TTL"); v != "" {
+	if v := os.Getenv("CACHE_TTL"); v != "" {
 		if cfg.CacheTTL, err = time.ParseDuration(v); err != nil || cfg.CacheTTL <= 0 {
-			return cfg, fmt.Errorf("PARTS_CACHE_TTL must be a positive duration such as 1h, not %q", v)
+			return cfg, fmt.Errorf("CACHE_TTL must be a positive duration such as 1h, not %q", v)
 		}
 	}
 
-	if v := os.Getenv("PARTS_CACHE_SIZE"); v != "" {
+	if v := os.Getenv("CACHE_SIZE"); v != "" {
 		if cfg.CacheSize, err = strconv.Atoi(v); err != nil || cfg.CacheSize <= 0 {
-			return cfg, fmt.Errorf("PARTS_CACHE_SIZE must be a positive number, not %q", v)
+			return cfg, fmt.Errorf("CACHE_SIZE must be a positive number, not %q", v)
 		}
 	}
 
-	if cfg.DigiKeyBudget, err = budget("DIGIKEY", parts.DefaultDigiKeyBudget); err != nil {
+	if cfg.DigiKeyBudget, err = budget("DIGIKEY", electroniccomponents.DefaultDigiKeyBudget); err != nil {
 		return cfg, err
 	}
 
-	if cfg.MouserBudget, err = budget("MOUSER", parts.DefaultMouserBudget); err != nil {
+	if cfg.MouserBudget, err = budget("MOUSER", electroniccomponents.DefaultMouserBudget); err != nil {
 		return cfg, err
 	}
 
@@ -111,7 +111,7 @@ func secretFile(env string) (string, error) {
 }
 
 // budget reads <PREFIX>_DAILY_LIMIT and <PREFIX>_PER_MINUTE over def.
-func budget(prefix string, def parts.BudgetConfig) (parts.BudgetConfig, error) {
+func budget(prefix string, def electroniccomponents.BudgetConfig) (electroniccomponents.BudgetConfig, error) {
 	b := def
 
 	if v := os.Getenv(prefix + "_DAILY_LIMIT"); v != "" {

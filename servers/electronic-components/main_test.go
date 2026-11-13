@@ -18,7 +18,7 @@ func TestConfigReadsKeysFromFilesAndSkipsMissingOnes(t *testing.T) {
 	t.Setenv("DIGIKEY_CLIENT_ID_FILE", filepath.Join(dir, "id"))
 	t.Setenv("DIGIKEY_CLIENT_SECRET_FILE", filepath.Join(dir, "secret"))
 	t.Setenv("MOUSER_API_KEY_FILE", filepath.Join(dir, "missing"))
-	t.Setenv("PARTS_CACHE_TTL", "30m")
+	t.Setenv("CACHE_TTL", "30m")
 	t.Setenv("MOUSER_DAILY_LIMIT", "0")
 
 	cfg, err := config()
@@ -34,8 +34,8 @@ func TestConfigReadsKeysFromFilesAndSkipsMissingOnes(t *testing.T) {
 
 func TestConfigRejectsMalformedSettings(t *testing.T) {
 	for env, value := range map[string]string{
-		"PARTS_CACHE_TTL":     "soon",
-		"PARTS_CACHE_SIZE":    "-1",
+		"CACHE_TTL":           "soon",
+		"CACHE_SIZE":          "-1",
 		"DIGIKEY_DAILY_LIMIT": "lots",
 		"MOUSER_PER_MINUTE":   "0",
 		"JLCSEARCH_DISABLED":  "maybe",

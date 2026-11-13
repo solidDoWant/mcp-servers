@@ -4,7 +4,7 @@ Small [MCP](https://modelcontextprotocol.io) servers, written in Go and run behi
 
 | Server | What it does | Image |
 |---|---|---|
-| [parts](servers/parts/README.md) | Search DigiKey, Mouser and JLCPCB's parts library for electronic components and compare offers | `ghcr.io/soliddowant/mcp-parts` |
+| [electronic-components](servers/electronic-components/README.md) | Search DigiKey, Mouser and JLCPCB's parts library for electronic components and compare offers | `ghcr.io/soliddowant/mcp-electronic-components` |
 | [printables](servers/printables/README.md) | Search printables.com and get direct download links for model files | `ghcr.io/soliddowant/mcp-printables` |
 | [sendcutsend](servers/sendcutsend/README.md) | Upload flat parts to SendCutSend, price them, and build saved carts to check out in a browser | `ghcr.io/soliddowant/mcp-sendcutsend` |
 

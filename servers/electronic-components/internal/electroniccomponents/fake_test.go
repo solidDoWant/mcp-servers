@@ -1,4 +1,4 @@
-package parts
+package electroniccomponents
 
 import (
 	"bytes"
@@ -66,7 +66,7 @@ func newFake(t *testing.T) *fake {
 			o := f.override[pattern]
 			f.mu.Unlock()
 
-			if ua := r.Header.Get("User-Agent"); !strings.HasPrefix(ua, "mcp-servers-parts/") {
+			if ua := r.Header.Get("User-Agent"); !strings.HasPrefix(ua, "mcp-servers-electronic-components/") {
 				f.t.Errorf("User-Agent %q doesn't name the server", ua)
 			}
 
@@ -206,7 +206,7 @@ func (f *fake) config() Config {
 func connect(t *testing.T, cfg Config) *mcp.ClientSession {
 	t.Helper()
 
-	return mcptest.Connect(t, mcpserver.Config{Name: "parts", Version: "test", Instructions: Instructions, Register: Tools(New(cfg))})
+	return mcptest.Connect(t, mcpserver.Config{Name: "electronic-components", Version: "test", Instructions: Instructions, Register: Tools(New(cfg))})
 }
 
 func errorText(t *testing.T, s *mcp.ClientSession, tool string, args any) string {
