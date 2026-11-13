@@ -6,11 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/solidDoWant/mcp-servers/internal/cache"
 	"github.com/solidDoWant/mcp-servers/internal/mcpserver"
 	"github.com/solidDoWant/mcp-servers/servers/electronic-components/internal/electroniccomponents"
 )
@@ -36,6 +38,7 @@ func main() {
 func config() (electroniccomponents.Config, error) {
 	cfg := electroniccomponents.Config{
 		Version: version,
+		Logger:  slog.New(slog.NewJSONHandler(os.Stdout, nil)).With("server", "electronic-components", "version", version),
 		DigiKey: electroniccomponents.DigiKeyConfig{
 			BaseURL:  os.Getenv("DIGIKEY_API_URL"),
 			Site:     os.Getenv("DIGIKEY_LOCALE_SITE"),
@@ -70,6 +73,30 @@ func config() (electroniccomponents.Config, error) {
 	if v := os.Getenv("CACHE_TTL"); v != "" {
 		if cfg.CacheTTL, err = time.ParseDuration(v); err != nil || cfg.CacheTTL <= 0 {
 			return cfg, fmt.Errorf("CACHE_TTL must be a positive duration such as 1h, not %q", v)
+		}
+	}
+
+	cfg.CacheStaleFor = 24 * time.Hour
+
+	if v := os.Getenv("CACHE_STALE_FOR"); v != "" {
+		if cfg.CacheStaleFor, err = time.ParseDuration(v); err != nil || cfg.CacheStaleFor < 0 {
+			return cfg, fmt.Errorf("CACHE_STALE_FOR must be a duration such as 24h, or 0 for none, not %q", v)
+		}
+	}
+
+	cfg.CachePrefix = os.Getenv("CACHE_KEY_PREFIX")
+
+	// A shared Redis-protocol server keeps answers and budgets across
+	// restarts and replicas. Its URL carries a password, so it comes from a
+	// file like the API keys.
+	cacheURL, err := secretFile("CACHE_URL_FILE")
+	if err != nil {
+		return cfg, err
+	}
+
+	if cacheURL != "" {
+		if cfg.CacheStore, err = cache.NewRedisStore(cacheURL); err != nil {
+			return cfg, fmt.Errorf("CACHE_URL_FILE: %w", err)
 		}
 	}
 

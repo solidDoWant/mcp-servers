@@ -10,6 +10,8 @@ import (
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
+
+	"github.com/solidDoWant/mcp-servers/internal/cache"
 )
 
 // DefaultDigiKeyURL is DigiKey's production API.
@@ -28,13 +30,13 @@ type DigiKeyConfig struct {
 type DigiKey struct {
 	cfg    DigiKeyConfig
 	client *http.Client
-	budget *Budget
+	budget *cache.Budget
 	wait   func(context.Context, time.Duration) error
 }
 
 // newDigiKey returns a DigiKey source that signs in with OAuth client
 // credentials through base, the plain HTTP client.
-func newDigiKey(cfg DigiKeyConfig, base *http.Client, budget *Budget, wait func(context.Context, time.Duration) error) *DigiKey {
+func newDigiKey(cfg DigiKeyConfig, base *http.Client, budget *cache.Budget, wait func(context.Context, time.Duration) error) *DigiKey {
 	cc := clientcredentials.Config{
 		ClientID:     cfg.ClientID,
 		ClientSecret: cfg.ClientSecret,
@@ -105,7 +107,7 @@ type dkProduct struct {
 }
 
 func (d *DigiKey) take(ctx context.Context) error {
-	return d.budget.Take(func(w time.Duration) error { return d.wait(ctx, w) })
+	return d.budget.Take(ctx, func(w time.Duration) error { return d.wait(ctx, w) })
 }
 
 func (d *DigiKey) Search(ctx context.Context, q SearchQuery) ([]Offer, error) {

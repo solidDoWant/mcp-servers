@@ -4,12 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"slices"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/solidDoWant/mcp-servers/internal/cache"
 )
 
 // Config configures the server. A source is enabled when its credentials
@@ -23,8 +26,19 @@ type Config struct {
 	JLCSearchURL      string
 	JLCSearchDisabled bool
 
-	CacheSize int
-	CacheTTL  time.Duration
+	// CacheStore holds cached answers and budget counts; nil keeps them in
+	// memory, holding at most CacheSize answers.
+	CacheStore cache.Store
+	CacheSize  int
+	// CacheTTL is how long answers stay fresh; CacheStaleFor is how much
+	// longer they're kept to answer with when a source fails.
+	CacheTTL      time.Duration
+	CacheStaleFor time.Duration
+	// CachePrefix starts every key in the store; on a shared server it's
+	// what this server's ACL user is limited to.
+	CachePrefix string
+	// Logger receives cache store failures; nil discards them.
+	Logger *slog.Logger
 
 	DigiKeyBudget BudgetConfig
 	MouserBudget  BudgetConfig
@@ -36,6 +50,9 @@ type Config struct {
 	Now  func() time.Time
 	Wait func(context.Context, time.Duration) error
 }
+
+// BudgetConfig sizes a source's request budget.
+type BudgetConfig = cache.BudgetConfig
 
 // Defaults stay below the distributors' published limits: DigiKey allows
 // 120 calls a minute and 1000 a day, Mouser 30 a minute and 1000 a day.
@@ -51,11 +68,20 @@ var sourceOrder = []string{"digikey", "mouser", "jlcpcb"}
 // Service searches the enabled sources through the cache.
 type Service struct {
 	providers map[string]Provider
-	budgets   map[string]*Budget
+	budgets   map[string]*cache.Budget
 	disabled  map[string]string
-	cache     *cache
+	cache     *cache.Cache
 	cacheTTL  time.Duration
+	staleFor  time.Duration
 }
+
+// cacheVersion is part of every cache key. Bump it when the shape of a
+// cached Offer changes, so old entries are never decoded into the new one.
+const cacheVersion = "1"
+
+// notFoundTTL is how long an answer with no offers stays fresh: long enough
+// to stop repeated misses spending budget, short enough for new parts.
+const notFoundTTL = 10 * time.Minute
 
 // New builds the service from cfg.
 func New(cfg Config) *Service {
@@ -75,6 +101,19 @@ func New(cfg Config) *Service {
 		cfg.CacheTTL = time.Hour
 	}
 
+	if cfg.CacheStaleFor < 0 {
+		cfg.CacheStaleFor = 0
+	}
+
+	if cfg.CacheStore == nil {
+		cfg.CacheStore = cache.NewMemoryStore(cfg.CacheSize, cfg.Now)
+	}
+
+	c := cache.New(cache.Options{
+		Store: cfg.CacheStore, Prefix: orString(cfg.CachePrefix, "electronic-components"),
+		StaleFor: cfg.CacheStaleFor, Now: cfg.Now, Logger: cfg.Logger,
+	})
+
 	base := &http.Client{
 		Timeout: cfg.HTTPClient.Timeout,
 		Transport: &userAgentTransport{
@@ -85,28 +124,29 @@ func New(cfg Config) *Service {
 
 	s := &Service{
 		providers: map[string]Provider{},
-		budgets:   map[string]*Budget{},
+		budgets:   map[string]*cache.Budget{},
 		disabled:  map[string]string{},
-		cache:     newCache(cfg.CacheSize, cfg.CacheTTL),
+		cache:     c,
 		cacheTTL:  cfg.CacheTTL,
+		staleFor:  cfg.CacheStaleFor,
 	}
 
 	if cfg.DigiKey.ClientID != "" && cfg.DigiKey.ClientSecret != "" {
-		b := NewBudget("DigiKey", orDefault(cfg.DigiKeyBudget, DefaultDigiKeyBudget), cfg.Now)
+		b := c.NewBudget("DigiKey", orDefault(cfg.DigiKeyBudget, DefaultDigiKeyBudget))
 		s.add(newDigiKey(withDigiKeyDefaults(cfg.DigiKey), base, b, cfg.Wait), b)
 	} else {
 		s.disabled["digikey"] = "no DigiKey client ID and secret are configured"
 	}
 
 	if cfg.MouserAPIKey != "" {
-		b := NewBudget("Mouser", orDefault(cfg.MouserBudget, DefaultMouserBudget), cfg.Now)
+		b := c.NewBudget("Mouser", orDefault(cfg.MouserBudget, DefaultMouserBudget))
 		s.add(&Mouser{base: orString(cfg.MouserURL, DefaultMouserURL), apiKey: cfg.MouserAPIKey, client: base, budget: b, wait: cfg.Wait}, b)
 	} else {
 		s.disabled["mouser"] = "no Mouser Search API key is configured"
 	}
 
 	if !cfg.JLCSearchDisabled {
-		b := NewBudget("jlcsearch", orDefault(cfg.JLCBudget, DefaultJLCBudget), cfg.Now)
+		b := c.NewBudget("jlcsearch", orDefault(cfg.JLCBudget, DefaultJLCBudget))
 		s.add(&JLCSearch{base: orString(cfg.JLCSearchURL, DefaultJLCSearchURL), client: base, budget: b, wait: cfg.Wait}, b)
 	} else {
 		s.disabled["jlcpcb"] = "jlcsearch is turned off"
@@ -115,7 +155,7 @@ func New(cfg Config) *Service {
 	return s
 }
 
-func (s *Service) add(p Provider, b *Budget) {
+func (s *Service) add(p Provider, b *cache.Budget) {
 	s.providers[p.Name()] = p
 	s.budgets[p.Name()] = b
 }
@@ -187,7 +227,7 @@ type SourceError struct {
 type result struct {
 	source string
 	offers []Offer
-	cached bool
+	meta   cache.Meta
 	err    error
 }
 
@@ -229,8 +269,8 @@ func (s *Service) fanOut(ctx context.Context, names []string, key func(string) s
 	for i, n := range names {
 		wg.Go(func() {
 			p := s.providers[n]
-			offers, hit, err := s.cache.get(ctx, key(n), func(ctx context.Context) ([]Offer, error) { return call(ctx, p) })
-			results[i] = result{source: n, offers: offers, cached: hit, err: err}
+			offers, meta, err := cache.Fetch(ctx, s.cache, key(n), s.ttl, func(ctx context.Context) ([]Offer, error) { return call(ctx, p) })
+			results[i] = result{source: n, offers: offers, meta: meta, err: err}
 		})
 	}
 
@@ -239,11 +279,20 @@ func (s *Service) fanOut(ctx context.Context, names []string, key func(string) s
 	return results
 }
 
+// ttl is how long an answer stays fresh.
+func (s *Service) ttl(offers []Offer) time.Duration {
+	if len(offers) == 0 {
+		return min(notFoundTTL, s.cacheTTL)
+	}
+
+	return s.cacheTTL
+}
+
 // Search runs q on the named sources.
 func (s *Service) Search(ctx context.Context, names []string, q SearchQuery) []result {
 	return s.fanOut(ctx, names,
 		func(n string) string {
-			return cacheKey(n, "search", strings.ToLower(strings.Join(strings.Fields(q.Keyword), " ")),
+			return s.cache.Key(cacheVersion, n, "search", strings.ToLower(strings.Join(strings.Fields(q.Keyword), " ")),
 				strconv.Itoa(q.Limit), strconv.FormatBool(q.InStockOnly), strconv.FormatBool(q.JLCBasicOnly))
 		},
 		func(ctx context.Context, p Provider) ([]Offer, error) { return p.Search(ctx, q) })
@@ -252,6 +301,6 @@ func (s *Service) Search(ctx context.Context, names []string, q SearchQuery) []r
 // Lookup finds partNumber on the named sources.
 func (s *Service) Lookup(ctx context.Context, names []string, partNumber string) []result {
 	return s.fanOut(ctx, names,
-		func(n string) string { return cacheKey(n, "lookup", mpnKey(partNumber)) },
+		func(n string) string { return s.cache.Key(cacheVersion, n, "lookup", mpnKey(partNumber)) },
 		func(ctx context.Context, p Provider) ([]Offer, error) { return p.Lookup(ctx, partNumber) })
 }

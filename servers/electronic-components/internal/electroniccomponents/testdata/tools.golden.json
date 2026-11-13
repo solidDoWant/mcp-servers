@@ -56,6 +56,38 @@
             "array"
           ]
         },
+        "from_cache": {
+          "description": "sources answered from the cache rather than asked",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "age_seconds": {
+                "description": "how long ago the source was asked",
+                "type": "integer"
+              },
+              "error": {
+                "description": "why the source failed, for a stale answer",
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "stale": {
+                "description": "the source failed just now, so this older answer was used",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "source",
+              "age_seconds"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
         "offers": {
           "description": "empty when no source carries the part",
           "items": {
@@ -186,8 +218,9 @@
     "outputSchema": {
       "additionalProperties": false,
       "properties": {
-        "cache_entries": {
-          "type": "integer"
+        "cache_backend": {
+          "description": "memory (lost on restart) or redis (shared, kept across restarts)",
+          "type": "string"
         },
         "cache_ttl": {
           "description": "how long answers are reused",
@@ -225,11 +258,15 @@
             "null",
             "array"
           ]
+        },
+        "stale_for": {
+          "description": "how much longer old answers are kept, to use when a source fails",
+          "type": "string"
         }
       },
       "required": [
         "sources",
-        "cache_entries",
+        "cache_backend",
         "cache_ttl"
       ],
       "type": "object"
@@ -309,9 +346,31 @@
           ]
         },
         "from_cache": {
-          "description": "sources answered from the cache, up to the cache age old",
+          "description": "sources answered from the cache rather than asked",
           "items": {
-            "type": "string"
+            "additionalProperties": false,
+            "properties": {
+              "age_seconds": {
+                "description": "how long ago the source was asked",
+                "type": "integer"
+              },
+              "error": {
+                "description": "why the source failed, for a stale answer",
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "stale": {
+                "description": "the source failed just now, so this older answer was used",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "source",
+              "age_seconds"
+            ],
+            "type": "object"
           },
           "type": [
             "null",

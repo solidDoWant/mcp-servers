@@ -1,5 +1,12 @@
 # electronic-components changelog
 
+## 0.3.0
+
+- The cache and budgets can live in a shared Redis-protocol server (`CACHE_URL_FILE`, `CACHE_KEY_PREFIX`), so they survive restarts, daily counts are exact, and replicas share them. Memory stays the default.
+- When a source fails, a recent answer (up to `CACHE_STALE_FOR`, a day by default) is used instead, marked stale with its age and the failure.
+- An answer with no offers is cached for 10 minutes, not an hour.
+- `from_cache` in `search_parts` (and now `get_part`) lists each cached answer's source, age and staleness, instead of only source names. `list_sources` reports `cache_backend` and `stale_for` instead of `cache_entries`.
+
 ## 0.2.0
 
 - A part number made by several companies, such as a generic AMS1117-3.3, now lists every maker under `manufacturers` instead of naming the first one as `manufacturer`, and the best offer says whose part it is. Makers' names are compared ignoring case and punctuation.

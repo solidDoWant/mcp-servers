@@ -4,12 +4,15 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
+	"sync"
 	"testing"
 	"time"
 
+	"github.com/alicebob/miniredis/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/solidDoWant/mcp-servers/internal/cache"
 	"github.com/solidDoWant/mcp-servers/internal/mcptest"
 )
 
@@ -156,7 +159,14 @@ func TestSearchParts(t *testing.T) {
 		mcptest.Structured(t, mcptest.CallTool(t, s, "search_parts", map[string]any{"query": "  stm32f103c8t6 "}), &second)
 
 		assert.Empty(t, first.FromCache)
-		assert.Equal(t, []string{"digikey", "mouser", "jlcpcb"}, second.FromCache, "case and spacing don't make a new search")
+
+		var cached []string
+		for _, n := range second.FromCache {
+			cached = append(cached, n.Source)
+			assert.False(t, n.Stale)
+		}
+
+		assert.Equal(t, []string{"digikey", "mouser", "jlcpcb"}, cached, "case and spacing don't make a new search")
 		assert.Equal(t, mpns(first.Parts), mpns(second.Parts))
 		assert.Equal(t, 1, f.count("POST /products/v4/search/keyword"))
 		assert.Equal(t, 1, f.count("POST /api/v1/search/keyword"))
@@ -407,41 +417,6 @@ func TestSources(t *testing.T) {
 	})
 }
 
-func TestBudget(t *testing.T) {
-	clock := time.Date(2026, 11, 13, 23, 59, 0, 0, time.UTC)
-	now := func() time.Time { return clock }
-	noWait := func(time.Duration) error { return nil }
-
-	t.Run("resets the daily count at midnight UTC", func(t *testing.T) {
-		b := NewBudget("X", BudgetConfig{Daily: 1}, now)
-
-		require.NoError(t, b.Take(noWait))
-		require.ErrorIs(t, b.Take(noWait), ErrBudget)
-
-		clock = clock.Add(2 * time.Minute)
-
-		require.NoError(t, b.Take(noWait))
-	})
-
-	t.Run("refuses a call that would wait longer than allowed", func(t *testing.T) {
-		b := NewBudget("X", BudgetConfig{PerMinute: 6, MaxWait: time.Second}, now)
-
-		require.NoError(t, b.Take(noWait), "the first call is free")
-		require.ErrorIs(t, b.Take(noWait), ErrBudget, "the next one would wait ten seconds")
-	})
-
-	t.Run("waits for the rate when the wait is short", func(t *testing.T) {
-		// Six a minute allows a burst of one, then one call every ten seconds.
-		b := NewBudget("X", BudgetConfig{PerMinute: 6, MaxWait: 15 * time.Second}, now)
-
-		var waited time.Duration
-
-		require.NoError(t, b.Take(noWait))
-		require.NoError(t, b.Take(func(d time.Duration) error { waited = d; return nil }))
-		assert.Equal(t, 10*time.Second, waited)
-	})
-}
-
 func TestMakerKeyIgnoresCaseSpacingAndPunctuation(t *testing.T) {
 	assert.Equal(t, makerKey("STMicroelectronics"), makerKey("ST Microelectronics"))
 	assert.Equal(t, makerKey("Texas Instruments"), makerKey("TEXAS-INSTRUMENTS"))
@@ -453,4 +428,100 @@ func TestStockCount(t *testing.T) {
 	for in, want := range map[string]*int{"1234": intPtr(1234), "1,234 In Stock": intPtr(1234), "None": nil, "": nil, " 7 On Order": intPtr(7)} {
 		assert.Equal(t, want, stockCount(in), "%q", in)
 	}
+}
+
+// testClock is a controllable time source for cache lifetimes.
+type testClock struct {
+	mu sync.Mutex
+	t  time.Time
+}
+
+func (c *testClock) now() time.Time {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	return c.t
+}
+
+func (c *testClock) advance(d time.Duration) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.t = c.t.Add(d)
+}
+
+func TestCachedAnswers(t *testing.T) {
+	t.Run("answers with an older result, saying so, when a source fails", func(t *testing.T) {
+		f := newFake(t)
+		clk := &testClock{t: time.Date(2026, 11, 13, 12, 0, 0, 0, time.UTC)}
+		cfg := f.config()
+		cfg.Now, cfg.CacheStaleFor = clk.now, 24*time.Hour
+		s := connect(t, cfg)
+		args := map[string]any{"query": "STM32F103C8T6", "sources": []string{"jlcpcb"}}
+
+		mcptest.CallTool(t, s, "search_parts", args)
+
+		clk.advance(2 * time.Hour)
+		f.setOverride("GET /api/search", func(w http.ResponseWriter, _ *http.Request) {
+			http.Error(w, "D1 DB is overloaded", http.StatusInternalServerError)
+		})
+
+		var got SearchOutput
+		mcptest.Structured(t, mcptest.CallTool(t, s, "search_parts", args), &got)
+
+		assert.Empty(t, got.Errors, "the stale answer stands in for the failure")
+		assert.Len(t, got.Parts, 3)
+		require.Len(t, got.FromCache, 1)
+		assert.Equal(t, "jlcpcb", got.FromCache[0].Source)
+		assert.True(t, got.FromCache[0].Stale)
+		assert.Equal(t, 7200, got.FromCache[0].AgeSeconds)
+		assert.Contains(t, got.FromCache[0].Error, "jlcsearch returned HTTP 500")
+	})
+
+	t.Run("fails once the older result is past its stale window", func(t *testing.T) {
+		f := newFake(t)
+		clk := &testClock{t: time.Date(2026, 11, 13, 12, 0, 0, 0, time.UTC)}
+		cfg := f.config()
+		cfg.Now, cfg.CacheStaleFor = clk.now, time.Hour
+		s := connect(t, cfg)
+		args := map[string]any{"query": "STM32F103C8T6", "sources": []string{"jlcpcb"}}
+
+		mcptest.CallTool(t, s, "search_parts", args)
+
+		clk.advance(3 * time.Hour)
+		f.setOverride("GET /api/search", func(w http.ResponseWriter, _ *http.Request) {
+			http.Error(w, "down", http.StatusInternalServerError)
+		})
+
+		assert.Contains(t, errorText(t, s, "search_parts", args), "jlcsearch returned HTTP 500")
+	})
+
+	t.Run("shares answers and the day's count between servers over one Redis store", func(t *testing.T) {
+		f := newFake(t)
+		m := miniredis.RunT(t)
+		open := func() Config {
+			store, err := cache.NewRedisStore("redis://" + m.Addr())
+			require.NoError(t, err)
+			t.Cleanup(func() { _ = store.Close() })
+
+			cfg := f.config()
+			cfg.CacheStore = store
+
+			return cfg
+		}
+		first, second := connect(t, open()), connect(t, open())
+		args := map[string]any{"query": "STM32F103C8T6", "sources": []string{"mouser"}}
+
+		mcptest.CallTool(t, first, "search_parts", args)
+
+		var got SearchOutput
+		mcptest.Structured(t, mcptest.CallTool(t, second, "search_parts", args), &got)
+		require.Len(t, got.FromCache, 1)
+		assert.Equal(t, 1, f.count("POST /api/v1/search/keyword"), "the second server didn't ask Mouser again")
+
+		var sources SourcesOutput
+		mcptest.Structured(t, mcptest.CallTool(t, second, "list_sources", map[string]any{}), &sources)
+		assert.Equal(t, "redis", sources.CacheBackend)
+		assert.Equal(t, 1, sources.Sources[1].CallsToday, "the first server's call counts for both")
+	})
 }

@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/solidDoWant/mcp-servers/internal/cache"
 )
 
 // DefaultJLCSearchURL is tscircuit's free, keyless search over JLCPCB's
@@ -20,7 +22,7 @@ const DefaultJLCSearchURL = "https://jlcsearch.tscircuit.com"
 type JLCSearch struct {
 	base   string
 	client *http.Client
-	budget *Budget
+	budget *cache.Budget
 	wait   func(context.Context, time.Duration) error
 }
 
@@ -50,7 +52,7 @@ func (j *JLCSearch) query(ctx context.Context, params url.Values) ([]jlcComponen
 	// jlcsearch sometimes answers with a transient 500. It has no quota, so
 	// a few tries with a short pause cost little.
 	for attempt := 0; ; attempt++ {
-		if err := j.budget.Take(func(d time.Duration) error { return j.wait(ctx, d) }); err != nil {
+		if err := j.budget.Take(ctx, func(d time.Duration) error { return j.wait(ctx, d) }); err != nil {
 			return nil, err
 		}
 

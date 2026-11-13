@@ -46,6 +46,34 @@ jobs:
       - uses: ./.github/actions/nix-dev-shell
       - run: nix develop -c make images
 
+  # internal/cache against real Redis-protocol servers: the one the homelab
+  # runs today and its likely replacement. The cache uses standard commands
+  # only, and this checks the per-service ACL isolation the docs describe.
+  cache-servers:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        server:
+          - name: valkey
+            image: ghcr.io/valkey-io/valkey:8.1-alpine@sha256:2602ace2be6569bc2bbb06f873776516ab9089821525be34f4305c67eb9db02a
+          - name: dragonfly
+            image: ghcr.io/dragonflydb/dragonfly:v2.1.0@sha256:94891bb22ce2fb0f7a5a3ff1bb3b2fbbc5830e2523293e47723d87fa3e5b1184
+    name: cache-servers (${{ matrix.server.name }})
+    services:
+      store:
+        image: ${{ matrix.server.image }}
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/nix-dev-shell
+      - run: nix develop -c go test -race -count=1 -run TestServer -v ./internal/cache/
+        env:
+          CACHE_TEST_REDIS_URL: redis://localhost:6379
+
   live:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
@@ -63,6 +91,7 @@ jobs:
       - lint
       - test
       - images
+      - cache-servers
     runs-on: ubuntu-latest
     steps:
       - name: Every job passed or was skipped
