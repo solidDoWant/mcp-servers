@@ -1,0 +1,857 @@
+{
+ "version": 6,
+ "cut": [
+  {
+   "id": "e6e12cb7cd0",
+   "type": "polyline",
+   "closed": true,
+   "circular": false,
+   "area": 695.8738,
+   "entities": [
+    {
+     "id": "efb7a97d466",
+     "type": "arc",
+     "start": {
+      "x": 24.3039,
+      "y": 68.0
+     },
+     "end": {
+      "x": 23.3039,
+      "y": 67.0
+     },
+     "extents": {
+      "top": 68.0,
+      "right": 24.3039,
+      "bottom": 67.0,
+      "left": 23.3039
+     },
+     "startAngle": 90.0,
+     "endAngle": 180.0,
+     "clockwise": false,
+     "center": {
+      "x": 24.3039,
+      "y": 67.0
+     },
+     "radius": 1.0
+    },
+    {
+     "id": "e3307cd37df",
+     "type": "line",
+     "extents": {
+      "top": 67.0,
+      "right": 23.3039,
+      "bottom": 31.8313,
+      "left": 23.3039
+     },
+     "start": {
+      "x": 23.3039,
+      "y": 67.0
+     },
+     "end": {
+      "x": 23.3039,
+      "y": 31.83132
+     }
+    },
+    {
+     "id": "e1177f902e4",
+     "type": "arc",
+     "start": {
+      "x": 23.3039,
+      "y": 31.83132
+     },
+     "end": {
+      "x": 25.035254,
+      "y": 31.149322
+     },
+     "extents": {
+      "top": 31.8313,
+      "right": 25.0353,
+      "bottom": 30.8313,
+      "left": 23.3039
+     },
+     "startAngle": 179.9999999993547,
+     "endAngle": 316.9999999980641,
+     "clockwise": false,
+     "center": {
+      "x": 24.3039,
+      "y": 31.83132
+     },
+     "radius": 1.0
+    },
+    {
+     "id": "e97b94beeb8",
+     "type": "line",
+     "extents": {
+      "top": 66.318,
+      "right": 57.8306,
+      "bottom": 31.1493,
+      "left": 25.0353
+     },
+     "start": {
+      "x": 25.035254,
+      "y": 31.149322
+     },
+     "end": {
+      "x": 57.830578,
+      "y": 66.318002
+     }
+    },
+    {
+     "id": "e44b84dd5cf",
+     "type": "arc",
+     "start": {
+      "x": 57.830578,
+      "y": 66.318002
+     },
+     "end": {
+      "x": 57.099224,
+      "y": 68.0
+     },
+     "extents": {
+      "top": 68.0,
+      "right": 58.0992,
+      "bottom": 66.318,
+      "left": 57.0992
+     },
+     "startAngle": 317.00000000000017,
+     "endAngle": 90.0,
+     "clockwise": false,
+     "center": {
+      "x": 57.099224,
+      "y": 67.0
+     },
+     "radius": 1.0
+    },
+    {
+     "id": "e68e0d945d3",
+     "type": "line",
+     "extents": {
+      "top": 68.0,
+      "right": 57.0992,
+      "bottom": 68.0,
+      "left": 24.3039
+     },
+     "start": {
+      "x": 57.099224,
+      "y": 68.0
+     },
+     "end": {
+      "x": 24.3039,
+      "y": 68.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "ed74a2d79fa",
+   "type": "polyline",
+   "closed": true,
+   "circular": false,
+   "area": 4872.711,
+   "entities": [
+    {
+     "id": "e91ae5ce13d",
+     "type": "line",
+     "extents": {
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+     },
+     "start": {
+      "x": 0.0,
+      "y": 0.0
+     },
+     "end": {
+      "x": 0.0,
+      "y": 79.0
+     }
+    },
+    {
+     "id": "ece74e0f4a4",
+     "type": "line",
+     "extents": {
+      "top": 79.0,
+      "right": 68.3523,
+      "bottom": 79.0,
+      "left": 0.0
+     },
+     "start": {
+      "x": 0.0,
+      "y": 79.0
+     },
+     "end": {
+      "x": 68.352296,
+      "y": 79.0
+     }
+    },
+    {
+     "id": "e1a7e278d0f",
+     "type": "arc",
+     "start": {
+      "x": 68.352296,
+      "y": 79.0
+     },
+     "end": {
+      "x": 70.546357,
+      "y": 79.954005
+     },
+     "extents": {
+      "top": 79.954,
+      "right": 70.5464,
+      "bottom": 79.0,
+      "left": 68.3523
+     },
+     "startAngle": 270.00000000000057,
+     "endAngle": 317.00000000000057,
+     "clockwise": false,
+     "center": {
+      "x": 68.352296,
+      "y": 82.0
+     },
+     "radius": 3.0
+    },
+    {
+     "id": "ed4b7a6a19e",
+     "type": "line",
+     "extents": {
+      "top": 80.9942,
+      "right": 71.5163,
+      "bottom": 79.954,
+      "left": 70.5464
+     },
+     "start": {
+      "x": 70.546357,
+      "y": 79.954005
+     },
+     "end": {
+      "x": 71.51633,
+      "y": 80.994174
+     }
+    },
+    {
+     "id": "e98e75733e0",
+     "type": "arc",
+     "start": {
+      "x": 71.51633,
+      "y": 80.994174
+     },
+     "end": {
+      "x": 78.098513,
+      "y": 83.856189
+     },
+     "extents": {
+      "top": 83.8562,
+      "right": 78.0985,
+      "bottom": 80.9942,
+      "left": 71.5163
+     },
+     "startAngle": 137.0000000003704,
+     "endAngle": 90.00000000037039,
+     "clockwise": true,
+     "center": {
+      "x": 78.098513,
+      "y": 74.856189
+     },
+     "radius": 9.0
+    },
+    {
+     "id": "e86a77b5bca",
+     "type": "line",
+     "extents": {
+      "top": 83.8562,
+      "right": 105.8193,
+      "bottom": 83.8562,
+      "left": 78.0985
+     },
+     "start": {
+      "x": 78.098513,
+      "y": 83.856189
+     },
+     "end": {
+      "x": 105.819329,
+      "y": 83.856189
+     }
+    },
+    {
+     "id": "e9faef42228",
+     "type": "arc",
+     "start": {
+      "x": 105.819329,
+      "y": 83.856189
+     },
+     "end": {
+      "x": 107.865325,
+      "y": 83.05025
+     },
+     "extents": {
+      "top": 83.8562,
+      "right": 107.8653,
+      "bottom": 83.0502,
+      "left": 105.8193
+     },
+     "startAngle": 89.99999999999568,
+     "endAngle": 46.999999999995794,
+     "clockwise": true,
+     "center": {
+      "x": 105.819329,
+      "y": 80.856189
+     },
+     "radius": 3.0
+    },
+    {
+     "id": "ea80b8edf27",
+     "type": "line",
+     "extents": {
+      "top": 83.0502,
+      "right": 119.4341,
+      "bottom": 72.2622,
+      "left": 107.8653
+     },
+     "start": {
+      "x": 107.865325,
+      "y": 83.05025
+     },
+     "end": {
+      "x": 119.434074,
+      "y": 72.262216
+     }
+    },
+    {
+     "id": "ef8d689b3e4",
+     "type": "line",
+     "extents": {
+      "top": 72.2622,
+      "right": 119.4341,
+      "bottom": 61.2919,
+      "left": 109.2041
+     },
+     "start": {
+      "x": 119.434074,
+      "y": 72.262216
+     },
+     "end": {
+      "x": 109.204098,
+      "y": 61.291911
+     }
+    },
+    {
+     "id": "e6eae2d61e4",
+     "type": "line",
+     "extents": {
+      "top": 72.0799,
+      "right": 109.2041,
+      "bottom": 61.2919,
+      "left": 97.6353
+     },
+     "start": {
+      "x": 109.204098,
+      "y": 61.291911
+     },
+     "end": {
+      "x": 97.635349,
+      "y": 72.079944
+     }
+    },
+    {
+     "id": "e3b4a5b2562",
+     "type": "arc",
+     "start": {
+      "x": 97.635349,
+      "y": 72.079944
+     },
+     "end": {
+      "x": 95.589354,
+      "y": 72.885883
+     },
+     "extents": {
+      "top": 72.8859,
+      "right": 97.6353,
+      "bottom": 72.0799,
+      "left": 95.5894
+     },
+     "startAngle": 46.999999998727276,
+     "endAngle": 89.9999999987271,
+     "clockwise": false,
+     "center": {
+      "x": 95.589354,
+      "y": 69.885883
+     },
+     "radius": 3.0
+    },
+    {
+     "id": "ebea8ae0e40",
+     "type": "line",
+     "extents": {
+      "top": 72.8859,
+      "right": 95.5894,
+      "bottom": 72.8859,
+      "left": 82.5189
+     },
+     "start": {
+      "x": 95.589354,
+      "y": 72.885883
+     },
+     "end": {
+      "x": 82.518874,
+      "y": 72.885883
+     }
+    },
+    {
+     "id": "ef4745f93b3",
+     "type": "arc",
+     "start": {
+      "x": 82.518874,
+      "y": 72.885883
+     },
+     "end": {
+      "x": 76.593117,
+      "y": 70.309291
+     },
+     "extents": {
+      "top": 72.8859,
+      "right": 82.5189,
+      "bottom": 70.3093,
+      "left": 76.5931
+     },
+     "startAngle": 89.99999999989518,
+     "endAngle": 136.99999999989518,
+     "clockwise": false,
+     "center": {
+      "x": 82.518874,
+      "y": 64.783433
+     },
+     "radius": 8.1025
+    },
+    {
+     "id": "eade1acd94e",
+     "type": "line",
+     "extents": {
+      "top": 70.3093,
+      "right": 76.5931,
+      "bottom": 28.498,
+      "left": 37.6034
+     },
+     "start": {
+      "x": 76.593117,
+      "y": 70.309291
+     },
+     "end": {
+      "x": 37.603426,
+      "y": 28.497966
+     }
+    },
+    {
+     "id": "e2e3b423a9a",
+     "type": "arc",
+     "start": {
+      "x": 37.603426,
+      "y": 28.497966
+     },
+     "end": {
+      "x": 35.391233,
+      "y": 22.881987
+     },
+     "extents": {
+      "top": 28.498,
+      "right": 37.6034,
+      "bottom": 22.882,
+      "left": 35.3912
+     },
+     "startAngle": 136.99999999997704,
+     "endAngle": 179.99999999999238,
+     "clockwise": false,
+     "center": {
+      "x": 43.625826,
+      "y": 22.881987
+     },
+     "radius": 8.2346
+    },
+    {
+     "id": "eb49bc31d45",
+     "type": "line",
+     "extents": {
+      "top": 22.882,
+      "right": 35.3912,
+      "bottom": 8.3685,
+      "left": 35.3912
+     },
+     "start": {
+      "x": 35.391233,
+      "y": 22.881987
+     },
+     "end": {
+      "x": 35.391233,
+      "y": 8.368487
+     }
+    },
+    {
+     "id": "e6324ad1980",
+     "type": "arc",
+     "start": {
+      "x": 35.391233,
+      "y": 8.368487
+     },
+     "end": {
+      "x": 36.345238,
+      "y": 6.174426
+     },
+     "extents": {
+      "top": 8.3685,
+      "right": 36.3452,
+      "bottom": 6.1744,
+      "left": 35.3912
+     },
+     "startAngle": 180.0,
+     "endAngle": 226.9999999999995,
+     "clockwise": false,
+     "center": {
+      "x": 38.391233,
+      "y": 8.368487
+     },
+     "radius": 3.0
+    },
+    {
+     "id": "e87d0bc09de",
+     "type": "line",
+     "extents": {
+      "top": 6.1744,
+      "right": 47.8242,
+      "bottom": -4.5299,
+      "left": 36.3452
+     },
+     "start": {
+      "x": 36.345238,
+      "y": 6.174426
+     },
+     "end": {
+      "x": 47.824246,
+      "y": -4.529922
+     }
+    },
+    {
+     "id": "ed43cc1d688",
+     "type": "line",
+     "extents": {
+      "top": -4.5299,
+      "right": 47.8242,
+      "bottom": -15.5002,
+      "left": 37.5943
+     },
+     "start": {
+      "x": 47.824246,
+      "y": -4.529922
+     },
+     "end": {
+      "x": 37.594271,
+      "y": -15.500228
+     }
+    },
+    {
+     "id": "e2b50f21442",
+     "type": "line",
+     "extents": {
+      "top": -2.6865,
+      "right": 37.5943,
+      "bottom": -15.5002,
+      "left": 23.8532
+     },
+     "start": {
+      "x": 37.594271,
+      "y": -15.500228
+     },
+     "end": {
+      "x": 23.85319,
+      "y": -2.686463
+     }
+    },
+    {
+     "id": "ec67670b844",
+     "type": "arc",
+     "start": {
+      "x": 23.85319,
+      "y": -2.686463
+     },
+     "end": {
+      "x": 17.033207,
+      "y": 0.0
+     },
+     "extents": {
+      "top": 0.0,
+      "right": 23.8532,
+      "bottom": -2.6865,
+      "left": 17.0332
+     },
+     "startAngle": 46.999999999987494,
+     "endAngle": 89.99999999998744,
+     "clockwise": false,
+     "center": {
+      "x": 17.033207,
+      "y": -10.0
+     },
+     "radius": 10.0
+    },
+    {
+     "id": "e1e6570d4bf",
+     "type": "line",
+     "extents": {
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "left": 0
+     },
+     "start": {
+      "x": 17.033207,
+      "y": 0.0
+     },
+     "end": {
+      "x": 0.0,
+      "y": 0.0
+     }
+    }
+   ]
+  },
+  {
+   "id": "eec946baa4e",
+   "type": "polyline",
+   "closed": true,
+   "circular": true,
+   "area": 9.1206,
+   "entities": [
+    {
+     "id": "ee23b3af993",
+     "type": "arc",
+     "start": {
+      "x": 6.225,
+      "y": 44.754
+     },
+     "end": {
+      "x": 2.815,
+      "y": 44.754
+     },
+     "extents": {
+      "top": 46.459,
+      "right": 6.225,
+      "bottom": 44.754,
+      "left": 2.815
+     },
+     "startAngle": 0.0,
+     "endAngle": 180.0,
+     "clockwise": false,
+     "center": {
+      "x": 4.52,
+      "y": 44.754
+     },
+     "radius": 1.705
+    },
+    {
+     "id": "eb5b9001f7d",
+     "type": "arc",
+     "start": {
+      "x": 2.815,
+      "y": 44.754
+     },
+     "end": {
+      "x": 6.225,
+      "y": 44.754
+     },
+     "extents": {
+      "top": 44.754,
+      "right": 6.225,
+      "bottom": 43.049,
+      "left": 2.815
+     },
+     "startAngle": 180.0,
+     "endAngle": 0.0,
+     "clockwise": false,
+     "center": {
+      "x": 4.52,
+      "y": 44.754
+     },
+     "radius": 1.705
+    }
+   ]
+  },
+  {
+   "id": "e12cd1bee5f",
+   "type": "polyline",
+   "closed": true,
+   "circular": true,
+   "area": 19.6089,
+   "entities": [
+    {
+     "id": "e44c68e74ae",
+     "type": "arc",
+     "start": {
+      "x": 111.333933,
+      "y": 71.892051
+     },
+     "end": {
+      "x": 106.333933,
+      "y": 71.892051
+     },
+     "extents": {
+      "top": 74.3921,
+      "right": 111.3339,
+      "bottom": 71.8921,
+      "left": 106.3339
+     },
+     "startAngle": 0.0,
+     "endAngle": 180.0,
+     "clockwise": false,
+     "center": {
+      "x": 108.833933,
+      "y": 71.892051
+     },
+     "radius": 2.5
+    },
+    {
+     "id": "e6aaa6cfa4b",
+     "type": "arc",
+     "start": {
+      "x": 106.333933,
+      "y": 71.892051
+     },
+     "end": {
+      "x": 111.333933,
+      "y": 71.892051
+     },
+     "extents": {
+      "top": 71.8921,
+      "right": 111.3339,
+      "bottom": 69.3921,
+      "left": 106.3339
+     },
+     "startAngle": 180.0,
+     "endAngle": 0.0,
+     "clockwise": false,
+     "center": {
+      "x": 108.833933,
+      "y": 71.892051
+     },
+     "radius": 2.5
+    }
+   ]
+  },
+  {
+   "id": "ea6652d1251",
+   "type": "polyline",
+   "closed": true,
+   "circular": true,
+   "area": 19.6089,
+   "entities": [
+    {
+     "id": "e2707cdf85b",
+     "type": "arc",
+     "start": {
+      "x": 39.724106,
+      "y": -4.900087
+     },
+     "end": {
+      "x": 34.724106,
+      "y": -4.900087
+     },
+     "extents": {
+      "top": -2.4001,
+      "right": 39.7241,
+      "bottom": -4.9001,
+      "left": 34.7241
+     },
+     "startAngle": 0.0,
+     "endAngle": 180.0,
+     "clockwise": false,
+     "center": {
+      "x": 37.224106,
+      "y": -4.900087
+     },
+     "radius": 2.5
+    },
+    {
+     "id": "e85da1a611e",
+     "type": "arc",
+     "start": {
+      "x": 34.724106,
+      "y": -4.900087
+     },
+     "end": {
+      "x": 39.724106,
+      "y": -4.900087
+     },
+     "extents": {
+      "top": -4.9001,
+      "right": 39.7241,
+      "bottom": -7.4001,
+      "left": 34.7241
+     },
+     "startAngle": 180.0,
+     "endAngle": 0.0,
+     "clockwise": false,
+     "center": {
+      "x": 37.224106,
+      "y": -4.900087
+     },
+     "radius": 2.5
+    }
+   ]
+  }
+ ],
+ "bendLines": [
+  {
+   "id": "e61229e1e29",
+   "type": "line",
+   "extents": {
+    "top": 83.1702,
+    "right": 107.7287,
+    "bottom": 72.1999,
+    "left": 97.4987
+   },
+   "start": {
+    "x": 97.498682,
+    "y": 72.199855
+   },
+   "end": {
+    "x": 107.728657,
+    "y": 83.170161
+   }
+  },
+  {
+   "id": "e64ebc60c64",
+   "type": "line",
+   "extents": {
+    "top": 6.3934,
+    "right": 36.1331,
+    "bottom": -4.5883,
+    "left": 25.8926
+   },
+   "start": {
+    "x": 25.892611,
+    "y": -4.588254
+   },
+   "end": {
+    "x": 36.133149,
+    "y": 6.393378
+   }
+  },
+  {
+   "id": "ef470022851",
+   "type": "line",
+   "extents": {
+    "top": 79.0,
+    "right": 10.63,
+    "bottom": 0.0,
+    "left": 10.63
+   },
+   "start": {
+    "x": 10.63,
+    "y": 0.0
+   },
+   "end": {
+    "x": 10.63,
+    "y": 79.0
+   }
+  }
+ ],
+ "etch": [],
+ "nokerf": [],
+ "dimension": []
+}

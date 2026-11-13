@@ -1,0 +1,57 @@
+{
+ "data": [
+  {
+   "anodizing_config": "",
+   "assembly_cart_item_id": null,
+   "bends": [],
+   "bend_compensation": false,
+   "bend_config": {},
+   "max_tonnage": 0.0,
+   "max_bend_length": 0.0,
+   "machining_tap_config": [],
+   "critical_tolerance_config": [],
+   "csk_config": [],
+   "dimple_config": [],
+   "engraving_config": "",
+   "hardware_config": [],
+   "tap_config": [],
+   "weld_config": [],
+   "welding_note": "",
+   "custom": null,
+   "hole_resize_config": [],
+   "id": 7012872,
+   "item_type": "production",
+   "operations": [],
+   "operation_count": {},
+   "plating_config": "",
+   "powder_config": "",
+   "acknowledgements": [],
+   "preferred_shipping_carrier": "usps",
+   "quantity": 10,
+   "saved_cart_id": 284633,
+   "total_weight": "0.4934165",
+   "can_order": true,
+   "attachments": [],
+   "customer_product": null,
+   "parent_product_id": null,
+   "configured_preview_urls": null,
+   "drawing": {
+    "id": 5001,
+    "filename": "bracket.dxf",
+    "customer_filename": "bracket.dxf"
+   },
+   "quote_errors": [],
+   "production_options": [],
+   "material": {
+    "id": 102,
+    "sku": "CRS-030"
+   },
+   "saved_cart_options": [],
+   "unit_cost": 0,
+   "unit_tax_basis": 0.0,
+   "total_cost": 0,
+   "operation_costs": {},
+   "review_required": false
+  }
+ ]
+}

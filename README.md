@@ -5,6 +5,7 @@ Small [MCP](https://modelcontextprotocol.io) servers, written in Go and run behi
 | Server | What it does | Image |
 |---|---|---|
 | [printables](servers/printables/README.md) | Search printables.com and get direct download links for model files | `ghcr.io/soliddowant/mcp-printables` |
+| [sendcutsend](servers/sendcutsend/README.md) | Upload flat parts to SendCutSend, price them, and build saved carts to check out in a browser | `ghcr.io/soliddowant/mcp-sendcutsend` |
 
 ## Running a server
 

@@ -1,0 +1,176 @@
+{
+ "data": {
+  "anodizing_config": "",
+  "assembly_cart_item_id": null,
+  "bends": [
+   {
+    "id": "e61229e1e29",
+    "angle": 90,
+    "direction": "down",
+    "radius": 0.063
+   },
+   {
+    "id": "e64ebc60c64",
+    "angle": 90,
+    "direction": "down",
+    "radius": 0.063
+   },
+   {
+    "id": "ef470022851",
+    "angle": 90,
+    "direction": "up",
+    "radius": 0.063
+   }
+  ],
+  "bend_compensation": false,
+  "bend_config": {
+   "agreed_to_deformation": false
+  },
+  "max_tonnage": 0.0,
+  "max_bend_length": 0.0,
+  "machining_tap_config": [],
+  "critical_tolerance_config": [],
+  "csk_config": [],
+  "dimple_config": [],
+  "engraving_config": "",
+  "hardware_config": [],
+  "tap_config": [
+   {
+    "id": "eec946baa4e",
+    "tap": "M4 x 0.7"
+   }
+  ],
+  "weld_config": [],
+  "welding_note": "",
+  "custom": null,
+  "hole_resize_config": [],
+  "id": 7013353,
+  "item_type": "production",
+  "operations": [
+   "bending",
+   "tapping",
+   "powder",
+   "deburring"
+  ],
+  "operation_count": {
+   "bending": 3,
+   "tapping": 1,
+   "powder": 1,
+   "deburring": 1
+  },
+  "plating_config": "",
+  "powder_config": "matte_black",
+  "acknowledgements": [],
+  "preferred_shipping_carrier": "usps",
+  "quantity": 2,
+  "saved_cart_id": null,
+  "total_weight": "0.268765809411618834",
+  "can_order": true,
+  "attachments": [],
+  "customer_product": null,
+  "parent_product_id": null,
+  "configured_preview_urls": null,
+  "drawing": {
+   "id": 6001,
+   "filename": "bracket_short.DXF",
+   "customer_filename": null
+  },
+  "quote_errors": [],
+  "production_options": [],
+  "material": {
+   "id": 45,
+   "sku": "CRS-074",
+   "name": "A36/1008 Mild Steel",
+   "fullname": "CRS A36/1008 Mild Steel (.074\")",
+   "thickness": ".074",
+   "form": "sheet",
+   "out_of_stock": false
+  },
+  "saved_cart_options": [],
+  "unit_cost": "6.32",
+  "unit_tax_basis": "25.23",
+  "total_cost": "50.46",
+  "operation_costs": {
+   "tapping": {
+    "total": "6.86",
+    "quantity": 2,
+    "minimum_cost": "6.85",
+    "discount": 23,
+    "unit_tax_basis": "3.43",
+    "operation_cost": "1.71",
+    "operation_count": 1
+   },
+   "bending": {
+    "total": "16.08",
+    "quantity": 2,
+    "minimum_cost": "13.77",
+    "discount": 40,
+    "unit_tax_basis": "8.04",
+    "operation_cost": "2.68",
+    "operation_count": 3
+   },
+   "deburring": {
+    "total": 0,
+    "quantity": 2,
+    "minimum_cost": 0,
+    "discount": 25,
+    "unit_tax_basis": 0,
+    "unit": 0
+   },
+   "powder": {
+    "total": "14.88",
+    "quantity": 2,
+    "minimum_cost": "14.88",
+    "discount": 5,
+    "unit_tax_basis": "7.44",
+    "unit": "3.7"
+   }
+  },
+  "review_required": false
+ },
+ "meta": {
+  "totals": {
+   "est_ship_date": "2026-11-20T08:00:00.000Z",
+   "in_hand_date": "2026-11-23T08:00:00.000Z",
+   "discount": "0.0",
+   "expedite": "0.0",
+   "gift": "0.0",
+   "item_count": 1,
+   "review_required": false,
+   "shipping": "0.0",
+   "shipping_threshold": "0.0",
+   "subtotal": "50.46",
+   "tax": "0.0",
+   "tax_line_items": [],
+   "total": "50.46",
+   "deliveries": [
+    {
+     "id": "expedite",
+     "items": [
+      7013353
+     ],
+     "shipping": "0.0",
+     "shipping_threshold": "0.0",
+     "expedite": "0.0",
+     "lead_time_days": 6,
+     "est_ship_date": "2026-11-20T08:00:00.000Z",
+     "in_hand_date": [
+      "2026-11-23T08:00:00.000Z",
+      "2026-11-24T08:00:00.000Z"
+     ],
+     "fastest_lead_time_days": 4,
+     "fastest_est_ship_date": "2026-11-18T08:00:00.000Z",
+     "fastest_in_hand_date": [
+      "2026-11-19T08:00:00.000Z"
+     ],
+     "production_method": "standard",
+     "shipping_method": "standard",
+     "review_required": false,
+     "subtotal": "50.46",
+     "total": "50.46",
+     "type": "domestic"
+    }
+   ]
+  }
+ }
+}

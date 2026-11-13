@@ -1,0 +1,82 @@
+{
+ "data": [
+  {
+   "material_sku": "CRS-074",
+   "override": null,
+   "errors": [],
+   "warnings": [],
+   "restricted_operations": {},
+   "review_required": false,
+   "quantity": 2,
+   "discount": 43,
+   "operation_costs": {
+    "tapping": {
+     "total": "6.86",
+     "quantity": 2,
+     "minimum_cost": "6.85",
+     "discount": 23,
+     "unit_tax_basis": "3.43",
+     "operation_cost": "1.71",
+     "operation_count": 1
+    },
+    "bending": {
+     "total": "16.08",
+     "quantity": 2,
+     "minimum_cost": "13.77",
+     "discount": 40,
+     "unit_tax_basis": "8.04",
+     "operation_cost": "2.68",
+     "operation_count": 3
+    },
+    "powder": {
+     "total": "14.88",
+     "quantity": 2,
+     "minimum_cost": "14.88",
+     "discount": 5,
+     "unit_tax_basis": "7.44",
+     "unit": "3.7"
+    }
+   },
+   "total_cost": "12.64",
+   "total_operation_cost": "37.82",
+   "unit_cost": "6.32",
+   "unit_tax_basis": "25.23",
+   "discounts": [
+    {
+     "quantity": 1,
+     "discount": 0,
+     "unit_tax_basis": "44.46"
+    },
+    {
+     "quantity": 2,
+     "discount": 43,
+     "unit_tax_basis": "25.23"
+    },
+    {
+     "quantity": 10,
+     "discount": 67,
+     "unit_tax_basis": "14.79"
+    },
+    {
+     "quantity": 50,
+     "discount": 75,
+     "unit_tax_basis": "11.03"
+    },
+    {
+     "quantity": 100,
+     "discount": 79,
+     "unit_tax_basis": "9.54"
+    },
+    {
+     "quantity": 1000,
+     "discount": 84,
+     "unit_tax_basis": "7.32"
+    }
+   ]
+  }
+ ],
+ "meta": {
+  "est_ship_date": "2026-11-16T08:00:00Z",
+  "in_hand_date": "2026-11-17T08:00:00Z"
+ }
+}

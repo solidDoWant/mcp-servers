@@ -1,0 +1,5 @@
+{
+ "data": {
+  "url": "https://{{UPLOAD_HOST}}/drawings/abc-bracket.dxf?X-Amz-Signature=sig"
+ }
+}

@@ -1,0 +1,55 @@
+{
+ "data": [
+  {
+   "material_sku": "CRS-030",
+   "override": null,
+   "errors": [],
+   "warnings": [],
+   "restricted_operations": {},
+   "review_required": false,
+   "quantity": 10,
+   "discount": 40,
+   "operation_costs": {},
+   "total_cost": "17.1",
+   "total_operation_cost": 0,
+   "unit_cost": "1.71",
+   "unit_tax_basis": "1.71",
+   "discounts": [
+    {
+     "quantity": 1,
+     "discount": 0,
+     "unit_tax_basis": "2.83"
+    },
+    {
+     "quantity": 2,
+     "discount": 21,
+     "unit_tax_basis": "2.24"
+    },
+    {
+     "quantity": 10,
+     "discount": 40,
+     "unit_tax_basis": "1.71"
+    },
+    {
+     "quantity": 50,
+     "discount": 62,
+     "unit_tax_basis": "1.08"
+    },
+    {
+     "quantity": 100,
+     "discount": 63,
+     "unit_tax_basis": "1.04"
+    },
+    {
+     "quantity": 1000,
+     "discount": 75,
+     "unit_tax_basis": "0.72"
+    }
+   ]
+  }
+ ],
+ "meta": {
+  "est_ship_date": "2026-11-17T08:00:00Z",
+  "in_hand_date": "2026-11-18T08:00:00Z"
+ }
+}
