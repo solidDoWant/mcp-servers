@@ -8,6 +8,10 @@ Every server in this repository follows these rules, so that each one deploys, r
 - `main` calls `mcpserver.Main` and does nothing else. Configuration comes from environment variables, and secrets come from files whose paths are set in environment variables. The exception is a connection string, such as `CACHE_URL`, which may come straight from an environment variable set from a Secret. Never put a secret in a command-line argument.
 - The image is `ghcr.io/soliddowant/mcp-<name>`. It contains the static binary on distroless, running as a non-root user, so it works with a read-only root filesystem and all capabilities dropped. Builds use `ko`, so a server has no Dockerfile.
 
+### Packaged servers
+
+A server can also be another project's MCP server that publishes no usable image, packaged here so it's built and released the same way. Its folder holds a `go.mod` of its own (a separate module, so upstream's dependencies stay out of this one) whose single `tool` directive names upstream's command at a pinned version, plus `README.md` and `CHANGELOG.md`, and no code of ours. `make build` and `scripts/image.sh` build that command. Its README lists where it differs from this contract, since we don't change upstream's code. `servers/tekton/` is the example.
+
 ## Protocol
 
 - MCP over Streamable HTTP at `/mcp`, on port 8080 (`MCP_LISTEN_ADDR` overrides it), plus `GET /healthz` for probes.

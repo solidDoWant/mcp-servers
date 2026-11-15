@@ -21,6 +21,20 @@ fi
 
 repo="ghcr.io/soliddowant/mcp-$server"
 
+# A server packaged from another project's command has its own go.mod, whose
+# one `tool` directive names that command (see docs/server-contract.md). ko
+# builds it from inside that module, with this repository's .ko.yaml.
+target="./servers/$server"
+if [[ -f "servers/$server/go.mod" ]]; then
+	target="$(awk '$1 == "tool" { print $2 }' "servers/$server/go.mod")"
+	if [[ -z "$target" ]]; then
+		echo "servers/$server/go.mod names no tool to build" >&2
+		exit 1
+	fi
+	export KO_CONFIG_PATH="$PWD"
+	cd "servers/$server"
+fi
+
 # ko passes GOFLAGS through to go build. The version has no spaces, so it
 # fits in one flag.
 export GOFLAGS="-trimpath -ldflags=-X=main.version=$version"
@@ -28,7 +42,7 @@ export KO_DOCKER_REPO="$repo"
 
 # shellcheck disable=SC2054 # the commas are in --platform's value
 args=(
-	build "./servers/$server"
+	build "$target"
 	--bare
 	--tags "$version"
 	--platform linux/amd64,linux/arm64

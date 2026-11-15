@@ -15,7 +15,7 @@ The dev shell (`nix develop`, or direnv) provides every tool. Run these before y
 ## Adding a server
 
 1. Copy the layout of `servers/printables/`: `main.go`, `internal/<name>/` with a client, the tools, tests, `testdata/`, `README.md` and `CHANGELOG.md`.
-2. Follow `docs/server-contract.md`.
+2. Follow `docs/server-contract.md`. To package another project's server instead of writing one, see "Packaged servers" there and copy `servers/tekton/`.
 3. Add the server to the table in `README.md`.
 4. The toolgate catalog entry lives in `solidDoWant/infra-mk3`, not here. Say in the PR what the entry needs: the upstream hostnames for its network policy, environment variables and secrets.
 

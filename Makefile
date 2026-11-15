@@ -26,6 +26,10 @@ lint: ## Run every check (golangci-lint, go mod tidy, shellcheck, image referenc
 	@failed=""; \
 	golangci-lint run ./... || failed="$$failed golangci-lint"; \
 	go mod tidy -diff || failed="$$failed go-mod-tidy"; \
+	for m in servers/*/go.mod; do \
+		[ -f "$$m" ] || continue; \
+		(cd "$$(dirname "$$m")" && go mod tidy -diff) || failed="$$failed go-mod-tidy:$$(dirname "$$m")"; \
+	done; \
 	shellcheck scripts/*.sh || failed="$$failed shellcheck"; \
 	./scripts/check-images.sh || failed="$$failed images"; \
 	./scripts/check-tracking-ids.sh || failed="$$failed tracking-ids"; \
@@ -54,7 +58,11 @@ build: ## Build every server into bin/.
 	@mkdir -p "$(BIN_DIR)"
 	@for s in $(SERVERS); do \
 		echo "go build $$s"; \
-		CGO_ENABLED=0 go build -trimpath -ldflags="-X main.version=$(VERSION)" -o "$(BIN_DIR)/$$s" "./servers/$$s"; \
+		if [ -f "servers/$$s/go.mod" ]; then \
+			(cd "servers/$$s" && CGO_ENABLED=0 go build -trimpath -o "$(CURDIR)/$(BIN_DIR)/$$s" "$$(awk '$$1 == "tool" { print $$2 }' go.mod)"); \
+		else \
+			CGO_ENABLED=0 go build -trimpath -ldflags="-X main.version=$(VERSION)" -o "$(BIN_DIR)/$$s" "./servers/$$s"; \
+		fi; \
 	done
 
 .PHONY: images
