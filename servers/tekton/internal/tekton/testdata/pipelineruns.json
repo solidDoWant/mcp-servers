@@ -1,0 +1,141 @@
+{
+  "apiVersion": "tekton.dev/v1",
+  "items": [
+    {
+      "apiVersion": "tekton.dev/v1",
+      "kind": "PipelineRun",
+      "metadata": {
+        "creationTimestamp": "2026-11-15T06:25:41Z",
+        "labels": {
+          "pipelinesascode.tekton.dev/event-type": "pull_request",
+          "tekton.dev/pipeline": "fixture-build"
+        },
+        "name": "fixture-build",
+        "namespace": "ci-infra-mk3",
+        "annotations": {}
+      },
+      "spec": {
+        "taskRunTemplate": {
+          "podTemplate": {
+            "runtimeClassName": "kata"
+          },
+          "serviceAccountName": "default"
+        },
+        "timeouts": {
+          "pipeline": "1h0m0s"
+        }
+      },
+      "status": {
+        "childReferences": [
+          {
+            "apiVersion": "tekton.dev/v1",
+            "kind": "TaskRun",
+            "name": "fixture-build-lint",
+            "pipelineTaskName": "lint"
+          },
+          {
+            "apiVersion": "tekton.dev/v1",
+            "kind": "TaskRun",
+            "name": "fixture-build-test",
+            "pipelineTaskName": "test"
+          }
+        ],
+        "completionTime": "2026-11-15T06:25:50Z",
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-11-15T06:25:50Z",
+            "message": "Tasks Completed: 2 (Failed: 1, Cancelled 0), Skipped: 0",
+            "reason": "Failed",
+            "status": "False",
+            "type": "Succeeded"
+          }
+        ],
+        "startTime": "2026-11-15T06:25:41Z"
+      }
+    },
+    {
+      "apiVersion": "tekton.dev/v1",
+      "kind": "PipelineRun",
+      "metadata": {
+        "annotations": {
+          "pipelinesascode.tekton.dev/branch": "master",
+          "pipelinesascode.tekton.dev/event-type": "pull_request",
+          "pipelinesascode.tekton.dev/execution-order": "ci-infra-mk3/smoke-pull-request",
+          "pipelinesascode.tekton.dev/git-provider": "github",
+          "pipelinesascode.tekton.dev/on-event": "[pull_request]",
+          "pipelinesascode.tekton.dev/on-target-branch": "[master]",
+          "pipelinesascode.tekton.dev/original-prname": "smoke-pull-request",
+          "pipelinesascode.tekton.dev/pull-request": "805",
+          "pipelinesascode.tekton.dev/repo-url": "https://github.com/solidDoWant/infra-mk3",
+          "pipelinesascode.tekton.dev/repository": "infra-mk3",
+          "pipelinesascode.tekton.dev/scm-reporting-plr-started": "true",
+          "pipelinesascode.tekton.dev/secret-created": "true",
+          "pipelinesascode.tekton.dev/sender": "solidDoWant",
+          "pipelinesascode.tekton.dev/sha": "b45236fea7e018069d206642f27fe86e66f252bd",
+          "pipelinesascode.tekton.dev/sha-title": "test: Pipelines-as-Code smoke test (do not merge)",
+          "pipelinesascode.tekton.dev/sha-url": "https://github.com/solidDoWant/infra-mk3/commit/b45236fea7e018069d206642f27fe86e66f252bd",
+          "pipelinesascode.tekton.dev/source-branch": "test/tekton-smoke",
+          "pipelinesascode.tekton.dev/source-repo-url": "https://github.com/solidDoWant/infra-mk3",
+          "pipelinesascode.tekton.dev/state": "completed",
+          "pipelinesascode.tekton.dev/url-org": "solidDoWant",
+          "pipelinesascode.tekton.dev/url-repository": "infra-mk3"
+        },
+        "creationTimestamp": "2026-11-14T22:51:42Z",
+        "finalizers": [
+          "pipelinesascode.tekton.dev/finalizer"
+        ],
+        "labels": {
+          "app.kubernetes.io/managed-by": "pipelinesascode.tekton.dev",
+          "app.kubernetes.io/version": "v0.50.2",
+          "pipelinesascode.tekton.dev/event-type": "pull_request",
+          "pipelinesascode.tekton.dev/original-prname": "smoke-pull-request",
+          "pipelinesascode.tekton.dev/pull-request": "805",
+          "pipelinesascode.tekton.dev/repository": "infra-mk3",
+          "pipelinesascode.tekton.dev/sha": "b45236fea7e018069d206642f27fe86e66f252bd",
+          "pipelinesascode.tekton.dev/state": "completed",
+          "pipelinesascode.tekton.dev/url-org": "solidDoWant",
+          "pipelinesascode.tekton.dev/url-repository": "infra-mk3",
+          "tekton.dev/pipeline": "smoke-pull-request"
+        },
+        "name": "smoke-pull-request",
+        "namespace": "ci-infra-mk3"
+      },
+      "spec": {
+        "taskRunTemplate": {
+          "podTemplate": {
+            "runtimeClassName": "kata"
+          },
+          "serviceAccountName": "default"
+        },
+        "timeouts": {
+          "pipeline": "1h0m0s"
+        }
+      },
+      "status": {
+        "childReferences": [
+          {
+            "apiVersion": "tekton.dev/v1",
+            "kind": "TaskRun",
+            "name": "smoke-pull-request-clone",
+            "pipelineTaskName": "clone"
+          }
+        ],
+        "completionTime": "2026-11-14T22:51:54Z",
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-11-14T22:51:54Z",
+            "message": "Tasks Completed: 1 (Failed: 0, Cancelled 0), Skipped: 0",
+            "reason": "Succeeded",
+            "status": "True",
+            "type": "Succeeded"
+          }
+        ],
+        "startTime": "2026-11-14T22:51:43Z"
+      }
+    }
+  ],
+  "kind": "PipelineRunList",
+  "metadata": {
+    "resourceVersion": "1"
+  }
+}

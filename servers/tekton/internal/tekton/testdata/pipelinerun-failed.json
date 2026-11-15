@@ -1,0 +1,52 @@
+{
+  "apiVersion": "tekton.dev/v1",
+  "kind": "PipelineRun",
+  "metadata": {
+    "creationTimestamp": "2026-11-15T06:25:41Z",
+    "labels": {
+      "pipelinesascode.tekton.dev/event-type": "pull_request",
+      "tekton.dev/pipeline": "fixture-build"
+    },
+    "name": "fixture-build",
+    "namespace": "ci-infra-mk3",
+    "annotations": {}
+  },
+  "spec": {
+    "taskRunTemplate": {
+      "podTemplate": {
+        "runtimeClassName": "kata"
+      },
+      "serviceAccountName": "default"
+    },
+    "timeouts": {
+      "pipeline": "1h0m0s"
+    }
+  },
+  "status": {
+    "childReferences": [
+      {
+        "apiVersion": "tekton.dev/v1",
+        "kind": "TaskRun",
+        "name": "fixture-build-lint",
+        "pipelineTaskName": "lint"
+      },
+      {
+        "apiVersion": "tekton.dev/v1",
+        "kind": "TaskRun",
+        "name": "fixture-build-test",
+        "pipelineTaskName": "test"
+      }
+    ],
+    "completionTime": "2026-11-15T06:25:50Z",
+    "conditions": [
+      {
+        "lastTransitionTime": "2026-11-15T06:25:50Z",
+        "message": "Tasks Completed: 2 (Failed: 1, Cancelled 0), Skipped: 0",
+        "reason": "Failed",
+        "status": "False",
+        "type": "Succeeded"
+      }
+    ],
+    "startTime": "2026-11-15T06:25:41Z"
+  }
+}

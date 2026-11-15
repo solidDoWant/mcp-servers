@@ -1,0 +1,609 @@
+[
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Read a step's log"
+    },
+    "description": "Read the end of one step's (or sidecar's) log from a TaskRun's pod. Without a step it reads the first failed step, else the last step. Logs are gone once the pod is deleted.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "namespace": {
+          "description": "the namespace the TaskRun is in",
+          "type": "string"
+        },
+        "sidecar": {
+          "description": "a sidecar's name, to read its log instead of a step's",
+          "type": "string"
+        },
+        "step": {
+          "description": "the step's name; default: the first failed step, else the last step",
+          "type": "string"
+        },
+        "tail_lines": {
+          "description": "how many lines from the end, 1 to 5000 (default 200)",
+          "type": "integer"
+        },
+        "taskrun": {
+          "description": "the TaskRun's name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "namespace",
+        "taskrun"
+      ],
+      "type": "object"
+    },
+    "name": "get_logs",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "container": {
+          "type": "string"
+        },
+        "lines": {
+          "description": "how many lines were returned",
+          "type": "integer"
+        },
+        "log": {
+          "type": "string"
+        },
+        "pod": {
+          "type": "string"
+        },
+        "sidecar": {
+          "type": "string"
+        },
+        "step": {
+          "type": "string"
+        },
+        "truncated": {
+          "description": "the requested lines were over 64 KiB, so only their end is shown, from a line boundary",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "pod",
+        "container",
+        "lines",
+        "truncated",
+        "log"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Get a PipelineRun"
+    },
+    "description": "Get one PipelineRun: its status and each of its tasks' TaskRun, with the steps that failed. Use the TaskRun names with get_taskrun and get_logs.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "the run's name",
+          "type": "string"
+        },
+        "namespace": {
+          "description": "the namespace the run is in",
+          "type": "string"
+        }
+      },
+      "required": [
+        "namespace",
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "get_pipelinerun",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "created": {
+          "type": "string"
+        },
+        "duration_seconds": {
+          "description": "from start to finish, or to now while running",
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "finished": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "pipeline": {
+          "description": "the Pipeline it runs; absent for one defined inline",
+          "type": "string"
+        },
+        "reason": {
+          "description": "Tekton's reason for the status, e.g. Failed or PipelineRunTimeout",
+          "type": "string"
+        },
+        "started": {
+          "type": "string"
+        },
+        "status": {
+          "description": "pending, running, succeeded, failed or cancelled",
+          "type": "string"
+        },
+        "tasks": {
+          "description": "one per task the run started, in the order Tekton lists them",
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "error": {
+                "description": "why the TaskRun couldn't be read",
+                "type": "string"
+              },
+              "failed_steps": {
+                "items": {
+                  "type": "string"
+                },
+                "type": [
+                  "null",
+                  "array"
+                ]
+              },
+              "message": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "task": {
+                "description": "the task's name in the pipeline",
+                "type": "string"
+              },
+              "taskrun": {
+                "description": "the TaskRun's name, for get_taskrun and get_logs",
+                "type": "string"
+              }
+            },
+            "required": [
+              "task",
+              "taskrun",
+              "status"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "trigger": {
+          "additionalProperties": false,
+          "description": "the Git event behind a run Pipelines-as-Code started",
+          "properties": {
+            "branch": {
+              "description": "the target branch",
+              "type": "string"
+            },
+            "commit_title": {
+              "type": "string"
+            },
+            "event": {
+              "description": "e.g. pull_request or push",
+              "type": "string"
+            },
+            "pull_request": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "sender": {
+              "type": "string"
+            },
+            "sha": {
+              "type": "string"
+            },
+            "source_branch": {
+              "description": "a pull request's head branch",
+              "type": "string"
+            },
+            "url": {
+              "description": "the commit on the Git host",
+              "type": "string"
+            }
+          },
+          "type": [
+            "null",
+            "object"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "status",
+        "created",
+        "tasks"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "Get a TaskRun"
+    },
+    "description": "Get one TaskRun: its status, its pod, and each step's and sidecar's state, exit code and timing, plus its results.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "description": "the run's name",
+          "type": "string"
+        },
+        "namespace": {
+          "description": "the namespace the run is in",
+          "type": "string"
+        }
+      },
+      "required": [
+        "namespace",
+        "name"
+      ],
+      "type": "object"
+    },
+    "name": "get_taskrun",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "created": {
+          "type": "string"
+        },
+        "duration_seconds": {
+          "description": "from start to finish, or to now while running",
+          "type": [
+            "null",
+            "number"
+          ]
+        },
+        "finished": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "pipeline": {
+          "description": "the Pipeline it runs; absent for one defined inline",
+          "type": "string"
+        },
+        "pod": {
+          "type": "string"
+        },
+        "reason": {
+          "description": "Tekton's reason for the status, e.g. Failed or PipelineRunTimeout",
+          "type": "string"
+        },
+        "results": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "description": "the value; arrays and objects as JSON",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "value"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "sidecars": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "exit_code": {
+                "maximum": 2147483647,
+                "minimum": -2147483648,
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              },
+              "finished": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "started": {
+                "type": "string"
+              },
+              "state": {
+                "description": "waiting, running or terminated",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "state"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "started": {
+          "type": "string"
+        },
+        "status": {
+          "description": "pending, running, succeeded, failed or cancelled",
+          "type": "string"
+        },
+        "steps": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "exit_code": {
+                "maximum": 2147483647,
+                "minimum": -2147483648,
+                "type": [
+                  "null",
+                  "integer"
+                ]
+              },
+              "finished": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string"
+              },
+              "started": {
+                "type": "string"
+              },
+              "state": {
+                "description": "waiting, running or terminated",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "state"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "task": {
+          "description": "the Task it runs; absent for one defined inline",
+          "type": "string"
+        },
+        "trigger": {
+          "additionalProperties": false,
+          "description": "the Git event behind a run Pipelines-as-Code started",
+          "properties": {
+            "branch": {
+              "description": "the target branch",
+              "type": "string"
+            },
+            "commit_title": {
+              "type": "string"
+            },
+            "event": {
+              "description": "e.g. pull_request or push",
+              "type": "string"
+            },
+            "pull_request": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "sender": {
+              "type": "string"
+            },
+            "sha": {
+              "type": "string"
+            },
+            "source_branch": {
+              "description": "a pull request's head branch",
+              "type": "string"
+            },
+            "url": {
+              "description": "the commit on the Git host",
+              "type": "string"
+            }
+          },
+          "type": [
+            "null",
+            "object"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "status",
+        "created",
+        "steps"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "idempotentHint": false,
+      "openWorldHint": false,
+      "readOnlyHint": true,
+      "title": "List PipelineRuns"
+    },
+    "description": "List a namespace's Tekton PipelineRuns, newest first: status, timing, and for runs started by Pipelines-as-Code the Git event behind them (repository, branch, commit, pull request, sender). Returns names to pass to get_pipelinerun.",
+    "inputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "limit": {
+          "description": "how many runs to return, 1 to 100 (default 20)",
+          "type": "integer"
+        },
+        "namespace": {
+          "description": "the namespace the runs are in",
+          "type": "string"
+        },
+        "status": {
+          "description": "only runs in this state: running, succeeded, failed, cancelled or pending",
+          "type": "string"
+        }
+      },
+      "required": [
+        "namespace"
+      ],
+      "type": "object"
+    },
+    "name": "list_pipelineruns",
+    "outputSchema": {
+      "additionalProperties": false,
+      "properties": {
+        "runs": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "created": {
+                "type": "string"
+              },
+              "duration_seconds": {
+                "description": "from start to finish, or to now while running",
+                "type": [
+                  "null",
+                  "number"
+                ]
+              },
+              "finished": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "pipeline": {
+                "description": "the Pipeline it runs; absent for one defined inline",
+                "type": "string"
+              },
+              "reason": {
+                "description": "Tekton's reason for the status, e.g. Failed or PipelineRunTimeout",
+                "type": "string"
+              },
+              "started": {
+                "type": "string"
+              },
+              "status": {
+                "description": "pending, running, succeeded, failed or cancelled",
+                "type": "string"
+              },
+              "trigger": {
+                "additionalProperties": false,
+                "description": "the Git event behind a run Pipelines-as-Code started",
+                "properties": {
+                  "branch": {
+                    "description": "the target branch",
+                    "type": "string"
+                  },
+                  "commit_title": {
+                    "type": "string"
+                  },
+                  "event": {
+                    "description": "e.g. pull_request or push",
+                    "type": "string"
+                  },
+                  "pull_request": {
+                    "type": "string"
+                  },
+                  "repository": {
+                    "type": "string"
+                  },
+                  "sender": {
+                    "type": "string"
+                  },
+                  "sha": {
+                    "type": "string"
+                  },
+                  "source_branch": {
+                    "description": "a pull request's head branch",
+                    "type": "string"
+                  },
+                  "url": {
+                    "description": "the commit on the Git host",
+                    "type": "string"
+                  }
+                },
+                "type": [
+                  "null",
+                  "object"
+                ]
+              }
+            },
+            "required": [
+              "name",
+              "status",
+              "created"
+            ],
+            "type": "object"
+          },
+          "type": [
+            "null",
+            "array"
+          ]
+        },
+        "total": {
+          "description": "how many runs match, before the limit",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "runs"
+      ],
+      "type": "object"
+    }
+  }
+]
