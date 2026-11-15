@@ -1,0 +1,6 @@
+=== RUN TestAdd
+--- PASS: TestAdd (0.00s)
+=== RUN TestDivide
+    divide_test.go:12: got 0, want 2
+--- FAIL: TestDivide (0.00s)
+FAIL

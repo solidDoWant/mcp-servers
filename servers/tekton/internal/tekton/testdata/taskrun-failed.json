@@ -1,0 +1,66 @@
+{
+  "apiVersion": "tekton.dev/v1",
+  "kind": "TaskRun",
+  "metadata": {
+    "annotations": {
+      "pipeline.tekton.dev/release": "7c7d6de"
+    },
+    "creationTimestamp": "2026-11-15T06:25:41Z",
+    "labels": {
+      "app.kubernetes.io/managed-by": "tekton-pipelines",
+      "pipelinesascode.tekton.dev/event-type": "pull_request",
+      "tekton.dev/memberOf": "tasks",
+      "tekton.dev/pipeline": "fixture-build",
+      "tekton.dev/pipelineRun": "fixture-build",
+      "tekton.dev/pipelineRunUID": "bb466d49-4af5-47ab-90af-7ce94a0d6035",
+      "tekton.dev/pipelineTask": "test"
+    },
+    "name": "fixture-build-test",
+    "namespace": "ci-infra-mk3"
+  },
+  "spec": {
+    "podTemplate": {
+      "runtimeClassName": "kata"
+    },
+    "serviceAccountName": "default",
+    "timeout": "1h0m0s"
+  },
+  "status": {
+    "completionTime": "2026-11-15T06:25:50Z",
+    "conditions": [
+      {
+        "lastTransitionTime": "2026-11-15T06:25:50Z",
+        "message": "\"step-unit\" exited with code 1: Error",
+        "reason": "StepFailed",
+        "status": "False",
+        "type": "Succeeded"
+      }
+    ],
+    "podName": "fixture-build-test-pod",
+    "startTime": "2026-11-15T06:25:41Z",
+    "steps": [
+      {
+        "container": "step-setup",
+        "name": "setup",
+        "terminated": {
+          "exitCode": 0,
+          "finishedAt": "2026-11-15T06:25:50Z",
+          "reason": "Completed",
+          "startedAt": "2026-11-15T06:25:50Z"
+        },
+        "terminationReason": "Completed"
+      },
+      {
+        "container": "step-unit",
+        "name": "unit",
+        "terminated": {
+          "exitCode": 1,
+          "finishedAt": "2026-11-15T06:25:50Z",
+          "reason": "Error",
+          "startedAt": "2026-11-15T06:25:50Z"
+        },
+        "terminationReason": "Error"
+      }
+    ]
+  }
+}
